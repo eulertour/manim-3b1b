@@ -1,7 +1,5 @@
 import numpy as np
 
-from PIL import Image
-
 from manimlib.constants import *
 from manimlib.mobject.mobject import Mobject
 from manimlib.mobject.shape_matchers import SurroundingRectangle
@@ -50,17 +48,7 @@ class ImageMobject(AbstractImageMobject):
     }
 
     def __init__(self, filename_or_array, **kwargs):
-        digest_config(self, kwargs)
-        if isinstance(filename_or_array, str):
-            path = get_full_raster_image_path(filename_or_array)
-            image = Image.open(path).convert(self.image_mode)
-            self.pixel_array = np.array(image)
-        else:
-            self.pixel_array = np.array(filename_or_array)
-        self.change_to_rgba_array()
-        if self.invert:
-            self.pixel_array[:, :, :3] = 255 - self.pixel_array[:, :, :3]
-        AbstractImageMobject.__init__(self, **kwargs)
+        raise NotImplementedError('not available in javascript')
 
     def change_to_rgba_array(self):
         pa = self.pixel_array

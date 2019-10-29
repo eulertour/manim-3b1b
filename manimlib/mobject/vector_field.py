@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import itertools as it
-from PIL import Image
 import random
 
 from manimlib.constants import *
@@ -45,7 +44,8 @@ def get_colored_background_image(scalar_field_func,
     points_array[:, :, 1] = y_array
     scalars = np.apply_along_axis(scalar_field_func, 2, points_array)
     rgb_array = number_to_rgb_func(scalars.flatten()).reshape((ph, pw, 3))
-    return Image.fromarray((rgb_array * 255).astype('uint8'))
+    # return Image.fromarray((rgb_array * 255).astype('uint8'))
+    raise NotImplementedError('not available in javascript')
 
 
 def get_rgb_gradient_function(min_value=0, max_value=1,

@@ -1,5 +1,4 @@
 import numpy as np
-from pydub import AudioSegment
 import shutil
 import subprocess
 import os
@@ -131,7 +130,7 @@ class SceneFileWriter(object):
         self.includes_sound = False
 
     def create_audio_segment(self):
-        self.audio_segment = AudioSegment.silent()
+        raise NotImplementedError('not available in javascript')
 
     def add_audio_segment(self, new_segment,
                           time=None,

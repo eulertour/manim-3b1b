@@ -1,4 +1,4 @@
-from scipy import linalg
+import js
 import numpy as np
 
 from manimlib.utils.simple_functions import choose
@@ -115,7 +115,7 @@ def get_smooth_handle_points(points):
     b[-1] = points[-1]
 
     def solve_func(b):
-        return linalg.solve_banded((l, u), diag, b)
+        return js.linalg.solve_banded((l, u), diag, b)
     use_closed_solve_function = is_closed(points)
     if use_closed_solve_function:
         # Get equations to relate first and last points
