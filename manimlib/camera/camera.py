@@ -4,7 +4,6 @@ import operator as op
 import time
 import copy
 
-import js
 import numpy as np
 
 from manimlib.constants import *

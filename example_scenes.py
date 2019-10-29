@@ -72,7 +72,7 @@ class OpeningManimExample(Scene):
         self.wait()
 
 
-class SquareToCircle(Scene):
+class SquareToCircle(WebScene):
     def construct(self):
         circle = Circle()
         square = Square()
@@ -81,8 +81,8 @@ class SquareToCircle(Scene):
         circle.set_fill(PINK, opacity=0.5)
 
         self.play(ShowCreation(square))
-        self.play(Transform(square, circle))
-        self.play(FadeOut(square))
+        self.play(ReplacementTransform(square, circle))
+        self.play(FadeOut(circle))
 
 
 class WarpSquare(Scene):

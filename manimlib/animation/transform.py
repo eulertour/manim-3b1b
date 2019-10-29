@@ -28,6 +28,9 @@ class Transform(Animation):
         self.target_mobject = target_mobject
         self.init_path_func()
 
+    def get_args(self):
+        return [id(self.mobject), id(self.target_mobject)]
+
     def init_path_func(self):
         if self.path_func is not None:
             return

@@ -37,6 +37,9 @@ class Animation(object):
             return self.name
         return self.__class__.__name__ + str(self.mobject)
 
+    def get_args(self):
+        return [id(self.mobject)]
+
     def begin(self):
         # This is called right as an animation is being
         # played.  As much initialization as possible,
