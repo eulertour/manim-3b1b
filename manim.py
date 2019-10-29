@@ -6,7 +6,9 @@ def main():
         code = f.read()
     scene = get_scene(code, ["SquareToCircle"])
     scene.render()
+    print(scene.scene_list)
     print(scene.render_list)
+    print(scene.mobject_dict)
 
 if __name__ == "__main__":
     main()
