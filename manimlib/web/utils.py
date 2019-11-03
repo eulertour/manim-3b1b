@@ -20,6 +20,8 @@ def mobject_to_json(mob):
 def get_mobject_style(mob):
     return {
         "strokeColor": mob.get_stroke_color().get_hex(),
+        "strokeOpacity": mob.get_stroke_opacity(),
         "fillColor": mob.get_fill_color().get_hex(),
+        "fillOpacity": mob.get_fill_opacity(),
         "strokeWidth": mob.get_stroke_width(),
     }

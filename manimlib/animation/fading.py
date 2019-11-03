@@ -32,6 +32,9 @@ class FadeIn(Transform):
         "lag_ratio": DEFAULT_FADE_LAG_RATIO,
     }
 
+    def get_args(self):
+        return [id(self.mobject)]
+
     def create_target(self):
         return self.mobject
 
