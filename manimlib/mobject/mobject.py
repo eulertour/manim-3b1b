@@ -37,6 +37,7 @@ class Mobject(Container):
     }
 
     def __init__(self, **kwargs):
+        self.kwargs = kwargs
         Container.__init__(self, **kwargs)
         self.submobjects = []
         self.color = Color(self.color)
@@ -1129,6 +1130,7 @@ class Mobject(Container):
 
 class Group(Mobject):
     def __init__(self, *mobjects, **kwargs):
+        self.kwargs = kwargs
         if not all([isinstance(m, Mobject) for m in mobjects]):
             raise Exception("All submobjects must be of type Mobject")
         Mobject.__init__(self, **kwargs)

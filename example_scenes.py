@@ -85,6 +85,21 @@ class SquareToCircle(WebScene):
         self.play(FadeOut(circle))
 
 
+class GroupExample(WebScene):
+    def construct(self):
+        c1 = Circle().shift(LEFT)
+        s1 = Square().shift(RIGHT)
+        g1 = Group(c1, s1)
+
+        c2 = Circle().shift(RIGHT + 2 * DOWN)
+        s2 = Square().shift(LEFT + 2 * DOWN)
+        r2 = Rectangle(height=4, width=2).shift(2 * LEFT + 2 * DOWN)
+        g2 = Group(r2, s2, c2)
+
+        self.play(FadeIn(g1))
+        self.play(Transform(g1, g2))
+
+
 class WarpSquare(Scene):
     def construct(self):
         square = Square()

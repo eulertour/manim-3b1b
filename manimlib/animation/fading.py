@@ -17,7 +17,7 @@ class FadeOut(Transform):
     }
 
     def get_args(self):
-        return [id(self.mobject)]
+        return [self.mobject]
 
     def create_target(self):
         return self.mobject.copy().fade(1)
@@ -33,7 +33,7 @@ class FadeIn(Transform):
     }
 
     def get_args(self):
-        return [id(self.mobject)]
+        return [self.mobject]
 
     def create_target(self):
         return self.mobject

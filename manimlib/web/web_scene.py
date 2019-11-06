@@ -2,6 +2,7 @@ from manimlib.scene.scene import Scene
 from manimlib.constants import *
 import copy
 from manimlib.web.utils import animation_to_json, mobjects_in_scene, mobject_to_json
+from manimlib.mobject.mobject import Mobject, Group
 
 
 class WebScene(Scene):
@@ -25,7 +26,7 @@ class WebScene(Scene):
         return super(WebScene, self).__init__(**self.render_kwargs)
 
     def play(self, *args, **kwargs):
-        self.update_mobject_dict()
+        self.update_mobject_dict(mobject_list=args[0].get_args())
         self.scene_list.append(mobjects_in_scene(self))
         self.render_list.append(animation_to_json(args, kwargs))
         super(WebScene, self).play(*args, **kwargs)
@@ -35,10 +36,16 @@ class WebScene(Scene):
         self.render_list.append(copy.deepcopy(wait_args))
         super(WebScene, self).wait(duration=duration, stop_condition=stop_condition)
 
-    def update_mobject_dict(self):
-        for mob in self.mobjects:
+    def update_mobject_dict(self, mobject_list=None, include_self=True):
+        mob_list = [] if mobject_list is None else list(mobject_list)
+        if include_self:
+            mob_list += self.mobjects
+        for mob in mob_list:
             if id(mob) not in self.mobject_dict:
                 self.mobject_dict[id(mob)] = mobject_to_json(mob)
+                if type(mob) == Group or type(mob) == Mobject:
+                    # handle the submobjects
+                    self.update_mobject_dict(mobject_list=mob.submobjects, include_self=False)
 
     def tear_down(self):
         # convert scene_list to diffs?
