@@ -1061,11 +1061,14 @@ class Mobject(Container):
         target = curr + n
         # TODO, factor this out to utils so as to reuse
         # with VMobject.insert_n_curves
+        # print(np.arange(target) * curr) [0 2 4]
         repeat_indices = (np.arange(target) * curr) // target
+        # print(repeat_indices) [0 0 1]
         split_factors = [
             sum(repeat_indices == i)
             for i in range(curr)
         ]
+        # print(split_factors) [2, 1]
         new_submobs = []
         for submob, sf in zip(self.submobjects, split_factors):
             new_submobs.append(submob)

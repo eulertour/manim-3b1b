@@ -55,3 +55,9 @@ def get_scene(code, scene_names):
             print("\n\n")
             traceback.print_exc()
             print("\n\n")
+
+def get_scene_choices(code):
+    module = manimlib.config.get_module(code)
+    scene_classes = get_scene_classes_from_module(module)
+    scene_choices = list(map(lambda cls: cls.__name__, scene_classes))
+    return scene_choices

@@ -9,8 +9,21 @@ def animation_to_json(play_args, play_kwargs):
       "durationSeconds": animation.run_time,
     }
 
+def wait_to_json(duration, stop_condition):
+    return {
+        "className": "Wait",
+        "args": [],
+        "durationSeconds": duration,
+        "stopCondition": stop_condition,
+        "description": "Hold a still frame",
+        "argDescriptions": [],
+    }
+
 def mobjects_in_scene(scene):
-    return list(map(lambda mob: id(mob), scene.mobjects))
+    return list(map(lambda mob: {
+        "name": id(mob),
+        "submobjects": mobjects_in_scene(mob.submobjects),
+    }, scene.mobjects))
 
 def mobject_to_json(mob):
     if isinstance(mob, VMobject):

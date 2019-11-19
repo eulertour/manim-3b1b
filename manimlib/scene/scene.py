@@ -196,10 +196,15 @@ class Scene(Container):
         ))
         return self
 
-    def remove(self, *mobjects):
-        for list_name in "mobjects", "foreground_mobjects":
-            self.restructure_mobjects(mobjects, list_name, False)
-        return self
+    def remove(self, *mobjects_to_remove):
+        new_mobjects = [mob for mob in self.mobjects if mob not in mobjects_to_remove]
+        for mob in new_mobjects:
+            dfs = [mob]
+            while dfs:
+                parent = dfs.pop()
+                parent.submobjects = [child for child in parent.submobjects if child not in mobjects_to_remove]
+                dfs.extend(parent.submobjects)
+        self.mobjects = new_mobjects
 
     def restructure_mobjects(self, to_remove,
                              mobject_list_name="mobjects",
