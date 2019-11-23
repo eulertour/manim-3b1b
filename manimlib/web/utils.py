@@ -19,11 +19,11 @@ def wait_to_json(duration, stop_condition):
         "argDescriptions": [],
     }
 
-def mobjects_in_scene(scene):
+def scene_mobjects_to_json(mobjects):
     return list(map(lambda mob: {
         "name": id(mob),
-        "submobjects": mobjects_in_scene(mob.submobjects),
-    }, scene.mobjects))
+        "submobjects": scene_mobjects_to_json(mob.submobjects),
+    }, mobjects))
 
 def mobject_to_json(mob):
     if isinstance(mob, VMobject):
