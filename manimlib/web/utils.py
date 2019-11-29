@@ -1,5 +1,10 @@
 from manimlib.mobject.mobject import Group, Mobject
 from manimlib.mobject.types.vectorized_mobject import VMobject
+import sys
+if sys.platform == "emscripten":
+    import js
+else:
+    import manimlib.web.web_mock
 
 def animation_to_json(play_args, play_kwargs):
     animation = play_args[0]
@@ -34,7 +39,7 @@ def mobject_to_json(mob):
             "style": get_mobject_style(mob),
             "submobjects": [id(mob) for mob in mob.submobjects],
         }
-    elif type(mob) in [Group, Mobject]:
+    elif type(mob) in [Group, Mobject, VGroup]:
         return {
             "className": mob.__class__.__name__,
             "submobjects": [id(mob) for mob in mob.submobjects],
@@ -53,3 +58,9 @@ def get_mobject_style(mob):
         "fillOpacity": mob.get_fill_opacity(),
         "strokeWidth": mob.get_stroke_width(),
     }
+
+def tex_to_svg_string(tex):
+    if sys.platform == "emscripten":
+        return js.MathJax.tex2svg(tex).innerHTML
+    else:
+        return web_mock.tex2svg[tex]

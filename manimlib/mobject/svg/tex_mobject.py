@@ -10,6 +10,7 @@ from manimlib.mobject.types.vectorized_mobject import VectorizedPoint
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.strings import split_string_list_to_isolate_substrings
 from manimlib.utils.tex_file_writing import tex_to_svg_file
+from manimlib.web.utils import tex_to_svg_string
 
 
 TEX_MOB_SCALE_FACTOR = 0.05
@@ -32,25 +33,27 @@ class SingleStringTexMobject(SVGMobject):
         "should_center": True,
         "height": None,
         "organize_left_to_right": False,
-        "alignment": "",
+        "prefix": "",
+        "suffix": "",
     }
 
     def __init__(self, tex_string, **kwargs):
         digest_config(self, kwargs)
         assert(isinstance(tex_string, str))
         self.tex_string = tex_string
-        file_name = tex_to_svg_file(
-            self.get_modified_expression(tex_string),
-            self.template_tex_file_body
-        )
-        SVGMobject.__init__(self, file_name=file_name, **kwargs)
+        # file_name = tex_to_svg_file(
+        #     self.get_modified_expression(tex_string),
+        #     self.template_tex_file_body
+        # )
+        svg_string = tex_to_svg_string(self.get_modified_expression(tex_string))
+        SVGMobject.__init__(self, svg_string=svg_string, **kwargs)
         if self.height is None:
             self.scale(TEX_MOB_SCALE_FACTOR)
         if self.organize_left_to_right:
             self.organize_submobjects_left_to_right()
 
     def get_modified_expression(self, tex_string):
-        result = self.alignment + " " + tex_string
+        result = self.prefix + " " + tex_string + " " + self.suffix
         result = result.strip()
         result = self.modify_special_strings(result)
         return result
@@ -137,6 +140,10 @@ class TexMobject(SingleStringTexMobject):
     }
 
     def __init__(self, *tex_strings, **kwargs):
+        self.kwargs = {
+            'tex_strings': tex_strings,
+            **kwargs,
+        }
         digest_config(self, kwargs)
         tex_strings = self.break_up_tex_strings(tex_strings)
         self.tex_strings = tex_strings
@@ -242,8 +249,8 @@ class TexMobject(SingleStringTexMobject):
 class TextMobject(TexMobject):
     CONFIG = {
         "template_tex_file_body": TEMPLATE_TEXT_FILE_BODY,
-        "alignment": "\\centering",
-        "arg_separator": "",
+        "prefix": "\\textrm{",
+        "suffix": "}",
     }
 
 
@@ -253,7 +260,6 @@ class BulletedList(TextMobject):
         "dot_scale_factor": 2,
         # Have to include because of handle_multiple_args implementation
         "template_tex_file_body": TEMPLATE_TEXT_FILE_BODY,
-        "alignment": "",
     }
 
     def __init__(self, *items, **kwargs):

@@ -32,38 +32,22 @@ class SVGMobject(VMobject):
         "height": 2,
         "width": None,
         # Must be filled in in a subclass, or when called
-        "file_name": None,
+        "svg_string": None,
         "unpack_groups": True,  # if False, creates a hierarchy of VGroups
         "stroke_width": DEFAULT_STROKE_WIDTH,
         "fill_opacity": 1.0,
         # "fill_color" : LIGHT_GREY,
     }
 
-    def __init__(self, file_name=None, **kwargs):
+    def __init__(self, svg_string=None, **kwargs):
         digest_config(self, kwargs)
-        self.file_name = file_name or self.file_name
-        self.ensure_valid_file()
+        self.svg_string = svg_string or self.svg_string
+        assert(self.svg_string is not None)
         VMobject.__init__(self, **kwargs)
         self.move_into_position()
 
-    def ensure_valid_file(self):
-        if self.file_name is None:
-            raise Exception("Must specify file for SVGMobject")
-        possible_paths = [
-            os.path.join(os.path.join("assets", "svg_images"), self.file_name),
-            os.path.join(os.path.join("assets", "svg_images"), self.file_name + ".svg"),
-            os.path.join(os.path.join("assets", "svg_images"), self.file_name + ".xdv"),
-            self.file_name,
-        ]
-        for path in possible_paths:
-            if os.path.exists(path):
-                self.file_path = path
-                return
-        raise IOError("No file matching %s in image directory" %
-                      self.file_name)
-
     def generate_points(self):
-        doc = minidom.parse(self.file_path)
+        doc = minidom.parseString(self.svg_string)
         self.ref_to_element = {}
         for svg in doc.getElementsByTagName("svg"):
             mobjects = self.get_mobjects_from(svg)

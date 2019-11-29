@@ -13,7 +13,7 @@ from manimlib.mobject.mobject import Mobject, Group
 class WebScene(Scene):
     def __init__(self, **kwargs):
         # A list of snapshots of the Scene before each Animation
-        self.scene_before_animation = []
+        self.scenes_before_animation = []
         # A list of serialized Animations
         self.animation_list = []
         # A mapping of ids to Mobjects
@@ -26,12 +26,12 @@ class WebScene(Scene):
 
     def play(self, *args, **kwargs):
         self.update_initial_mobject_dict(mobject_list=args[0].get_args())
-        self.scene_before_animation.append(scene_mobjects_to_json(self.mobjects))
+        self.scenes_before_animation.append(scene_mobjects_to_json(self.mobjects))
         self.animation_list.append(animation_to_json(args, kwargs))
         super(WebScene, self).play(*args, **kwargs)
 
     def wait(self, duration=DEFAULT_WAIT_TIME, stop_condition=None):
-        self.scene_before_animation.append(scene_mobjects_to_json(self.mobjects))
+        self.scenes_before_animation.append(scene_mobjects_to_json(self.mobjects))
         self.animation_list.append(wait_to_json(duration, stop_condition))
         super(WebScene, self).wait(duration=duration, stop_condition=stop_condition)
 
@@ -48,5 +48,5 @@ class WebScene(Scene):
                     self.update_initial_mobject_dict(mobject_list=mob.submobjects, include_self=False)
 
     def tear_down(self):
-        # convert scene_before_animation to diffs?
+        # convert scenes_before_animation to diffs?
         pass
