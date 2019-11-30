@@ -311,7 +311,10 @@ class Circle(Arc):
     }
 
     def __init__(self, **kwargs):
-        self.kwargs = kwargs
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { **kwargs, **self.kwargs }
+        else:
+            self.kwargs = kwargs
         Arc.__init__(self, 0, TAU, **kwargs)
 
     def surround(self, mobject, dim_to_match=0, stretch=False, buffer_factor=1.2):
@@ -832,7 +835,10 @@ class Square(Rectangle):
     }
 
     def __init__(self, **kwargs):
-        self.kwargs = kwargs
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { **kwargs, **self.kwargs }
+        else:
+            self.kwargs = kwargs
         digest_config(self, kwargs)
         Rectangle.__init__(
             self,

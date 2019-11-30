@@ -38,13 +38,13 @@ class SingleStringTexMobject(SVGMobject):
     }
 
     def __init__(self, tex_string, **kwargs):
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { 'tex_string': tex_string, **kwargs, **self.kwargs }
+        else:
+            self.kwargs = { 'tex_string': tex_string, **kwargs }
         digest_config(self, kwargs)
         assert(isinstance(tex_string, str))
         self.tex_string = tex_string
-        # file_name = tex_to_svg_file(
-        #     self.get_modified_expression(tex_string),
-        #     self.template_tex_file_body
-        # )
         svg_string = tex_to_svg_string(self.get_modified_expression(tex_string))
         SVGMobject.__init__(self, svg_string=svg_string, **kwargs)
         if self.height is None:
@@ -140,10 +140,10 @@ class TexMobject(SingleStringTexMobject):
     }
 
     def __init__(self, *tex_strings, **kwargs):
-        self.kwargs = {
-            'tex_strings': tex_strings,
-            **kwargs,
-        }
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { 'tex_strings': tex_strings, **kwargs, **self.kwargs }
+        else:
+            self.kwargs = { 'tex_strings': tex_strings, **kwargs }
         digest_config(self, kwargs)
         tex_strings = self.break_up_tex_strings(tex_strings)
         self.tex_strings = tex_strings

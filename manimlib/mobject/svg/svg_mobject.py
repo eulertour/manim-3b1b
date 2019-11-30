@@ -302,6 +302,10 @@ class SVGMobject(VMobject):
 
 class VMobjectFromSVGPathstring(VMobject):
     def __init__(self, path_string, **kwargs):
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { 'path_string': path_string, **kwargs, **self.kwargs }
+        else:
+            self.kwargs = { 'path_string': path_string, **kwargs }
         digest_locals(self)
         VMobject.__init__(self, **kwargs)
 

@@ -8,6 +8,11 @@ from manimlib.web.utils import (
     mobject_to_json,
 )
 from manimlib.mobject.mobject import Mobject, Group
+from manimlib.mobject.svg.tex_mobject import (
+    TexMobject,
+    TextMobject,
+    SingleStringTexMobject,
+)
 
 
 class WebScene(Scene):
@@ -43,7 +48,13 @@ class WebScene(Scene):
             mob_id = id(mob)
             if mob_id not in self.initial_mobject_dict:
                 self.initial_mobject_dict[mob_id] = mobject_to_json(mob)
-                if type(mob) == Group or type(mob) == Mobject:
+                if type(mob) in [
+                    Group,
+                    Mobject,
+                    TexMobject,
+                    TextMobject,
+                    SingleStringTexMobject,
+                ]:
                     # handle the submobjects
                     self.update_initial_mobject_dict(mobject_list=mob.submobjects, include_self=False)
 

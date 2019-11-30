@@ -37,7 +37,10 @@ class Mobject(Container):
     }
 
     def __init__(self, **kwargs):
-        self.kwargs = kwargs
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { **kwargs, **self.kwargs }
+        else:
+            self.kwargs = kwargs
         Container.__init__(self, **kwargs)
         self.submobjects = []
         self.color = Color(self.color)
@@ -48,6 +51,8 @@ class Mobject(Container):
         self.reset_points()
         self.generate_points()
         self.init_colors()
+        if 'template_tex_file_body' in self.kwargs:
+            del self.kwargs['template_tex_file_body']
 
     def __str__(self):
         return str(self.name)
@@ -1133,7 +1138,10 @@ class Mobject(Container):
 
 class Group(Mobject):
     def __init__(self, *mobjects, **kwargs):
-        self.kwargs = kwargs
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { **kwargs, **self.kwargs }
+        else:
+            self.kwargs = kwargs
         if not all([isinstance(m, Mobject) for m in mobjects]):
             raise Exception("All submobjects must be of type Mobject")
         Mobject.__init__(self, **kwargs)

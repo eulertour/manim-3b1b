@@ -1,10 +1,10 @@
 from manimlib.mobject.mobject import Group, Mobject
-from manimlib.mobject.types.vectorized_mobject import VMobject
+from manimlib.mobject.types.vectorized_mobject import VMobject, VGroup
 import sys
 if sys.platform == "emscripten":
     import js
 else:
-    import manimlib.web.web_mock
+    from manimlib.web.web_mock import tex2svg
 
 def animation_to_json(play_args, play_kwargs):
     animation = play_args[0]
@@ -32,14 +32,15 @@ def scene_mobjects_to_json(mobjects):
 
 def mobject_to_json(mob):
     if isinstance(mob, VMobject):
-        return {
+        ret = {
             "className": mob.__class__.__name__,
             "params": mob.kwargs,
             "position": mob.get_center(),
             "style": get_mobject_style(mob),
             "submobjects": [id(mob) for mob in mob.submobjects],
         }
-    elif type(mob) in [Group, Mobject, VGroup]:
+        return ret
+    elif type(mob) in [Group, Mobject, VGroup, VMobject]:
         return {
             "className": mob.__class__.__name__,
             "submobjects": [id(mob) for mob in mob.submobjects],
@@ -63,4 +64,5 @@ def tex_to_svg_string(tex):
     if sys.platform == "emscripten":
         return js.MathJax.tex2svg(tex).innerHTML
     else:
-        return web_mock.tex2svg[tex]
+        print("searching cache for " + tex)
+        return tex2svg[tex]
