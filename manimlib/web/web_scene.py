@@ -30,7 +30,11 @@ class WebScene(Scene):
         return super(WebScene, self).__init__(**self.render_kwargs)
 
     def play(self, *args, **kwargs):
-        self.update_initial_mobject_dict(mobject_list=args[0].get_args())
+        animation = args[0]
+        if animation.__class__.__name__.startswith("ApplyPointwiseFunction"):
+            self.update_initial_mobject_dict(mobject_list=animation.get_args()[1:])
+        else:
+            self.update_initial_mobject_dict(mobject_list=animation.get_args())
         self.scenes_before_animation.append(scene_mobjects_to_json(self.mobjects))
         self.animation_list.append(animation_to_json(args, kwargs))
         super(WebScene, self).play(*args, **kwargs)

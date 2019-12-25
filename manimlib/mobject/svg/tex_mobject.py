@@ -2,7 +2,7 @@ from functools import reduce
 import operator as op
 
 from manimlib.constants import *
-from manimlib.mobject.geometry import Line
+from manimlib.mobject.geometry import Line, Circle, Rectangle
 from manimlib.mobject.svg.svg_mobject import SVGMobject
 from manimlib.mobject.svg.svg_mobject import VMobjectFromSVGPathstring
 from manimlib.mobject.types.vectorized_mobject import VGroup
@@ -10,7 +10,8 @@ from manimlib.mobject.types.vectorized_mobject import VectorizedPoint
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.strings import split_string_list_to_isolate_substrings
 from manimlib.utils.tex_file_writing import tex_to_svg_file
-from manimlib.web.utils import tex_to_svg_string
+from manimlib.web.utils import tex_to_paths
+from manimlib.mobject.types.vectorized_mobject import VMobject
 
 
 TEX_MOB_SCALE_FACTOR = 0.05
@@ -26,7 +27,7 @@ class TexSymbol(VMobjectFromSVGPathstring):
 class SingleStringTexMobject(SVGMobject):
     CONFIG = {
         "template_tex_file_body": TEMPLATE_TEX_FILE_BODY,
-        "stroke_width": 0,
+        "stroke_width": 1,
         "fill_opacity": 1.0,
         "background_stroke_width": 1,
         "background_stroke_color": BLACK,
@@ -45,12 +46,20 @@ class SingleStringTexMobject(SVGMobject):
         digest_config(self, kwargs)
         assert(isinstance(tex_string, str))
         self.tex_string = tex_string
-        svg_string = tex_to_svg_string(self.get_modified_expression(tex_string))
-        SVGMobject.__init__(self, svg_string=svg_string, **kwargs)
-        if self.height is None:
-            self.scale(TEX_MOB_SCALE_FACTOR)
-        if self.organize_left_to_right:
-            self.organize_submobjects_left_to_right()
+        VMobject.__init__(self, **kwargs)
+        # self.move_into_position()
+        # if self.height is None:
+        #     self.scale(TEX_MOB_SCALE_FACTOR)
+        # if self.organize_left_to_right:
+        #     self.organize_submobjects_left_to_right()
+
+    def generate_points(self):
+        path_data = tex_to_paths(f"{self.prefix}{self.tex_string}{self.suffix}")
+        for point_list in path_data:
+            if point_list:
+                vmob = VMobject()
+                vmob.append_points(point_list)
+                self.add(vmob)
 
     def get_modified_expression(self, tex_string):
         result = self.prefix + " " + tex_string + " " + self.suffix
@@ -140,10 +149,6 @@ class TexMobject(SingleStringTexMobject):
     }
 
     def __init__(self, *tex_strings, **kwargs):
-        if hasattr(self, 'kwargs'):
-            self.kwargs = { 'tex_strings': tex_strings, **kwargs, **self.kwargs }
-        else:
-            self.kwargs = { 'tex_strings': tex_strings, **kwargs }
         digest_config(self, kwargs)
         tex_strings = self.break_up_tex_strings(tex_strings)
         self.tex_strings = tex_strings
@@ -155,6 +160,10 @@ class TexMobject(SingleStringTexMobject):
 
         if self.organize_left_to_right:
             self.organize_submobjects_left_to_right()
+        if hasattr(self, 'kwargs'):
+            self.kwargs = { 'tex_strings': self.tex_strings, **kwargs, **self.kwargs }
+        else:
+            self.kwargs = { 'tex_strings': self.tex_strings, **kwargs }
 
     def break_up_tex_strings(self, tex_strings):
         substrings_to_isolate = op.add(

@@ -191,7 +191,11 @@ class ApplyPointwiseFunction(ApplyMethod):
         "run_time": DEFAULT_POINTWISE_FUNCTION_RUN_TIME
     }
 
+    def get_args(self):
+        return self.args
+
     def __init__(self, function, mobject, **kwargs):
+        self.args = [function, mobject]
         super().__init__(mobject.apply_function, function, **kwargs)
 
 

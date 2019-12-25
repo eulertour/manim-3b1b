@@ -825,8 +825,8 @@ class Rectangle(Polygon):
 
     def __init__(self, **kwargs):
         Polygon.__init__(self, UL, UR, DR, DL, **kwargs)
-        self.set_width(self.width, stretch=True)
-        self.set_height(self.height, stretch=True)
+        self.set_width(self.width, stretch=True, add_transform=False)
+        self.set_height(self.height, stretch=True, add_transform=False)
 
 
 class Square(Rectangle):

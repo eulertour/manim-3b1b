@@ -41,6 +41,7 @@ class Mobject(Container):
             self.kwargs = { **kwargs, **self.kwargs }
         else:
             self.kwargs = kwargs
+        self.transformations = []
         Container.__init__(self, **kwargs)
         self.submobjects = []
         self.color = Color(self.color)
@@ -241,7 +242,7 @@ class Mobject(Container):
             mob.points += total_vector
         return self
 
-    def scale(self, scale_factor, **kwargs):
+    def scale(self, scale_factor, add_transform=True, **kwargs):
         """
         Default behavior is to scale about the center of the mobject.
         The argument about_edge can be a vector, indicating which side of
@@ -251,8 +252,12 @@ class Mobject(Container):
         Otherwise, if about_point is given a value, scaling is done with
         respect to that point.
         """
+        if scale_factor == 1:
+            return
         self.apply_points_function_about_point(
-            lambda points: scale_factor * points, **kwargs
+            lambda points: scale_factor * points,
+            transform=(('scale', scale_factor, kwargs)) if add_transform else None,
+            **kwargs,
         )
         return self
 
@@ -263,6 +268,7 @@ class Mobject(Container):
         rot_matrix = rotation_matrix(angle, axis)
         self.apply_points_function_about_point(
             lambda points: np.dot(points, rot_matrix.T),
+            transform=(('rotate', angle, axis, kwargs)),
             **kwargs
         )
         return self
@@ -270,11 +276,17 @@ class Mobject(Container):
     def flip(self, axis=UP, **kwargs):
         return self.rotate(TAU / 2, axis, **kwargs)
 
-    def stretch(self, factor, dim, **kwargs):
+    def stretch(self, factor, dim, add_transform=True, **kwargs):
+        if factor == 1:
+            return
         def func(points):
             points[:, dim] *= factor
             return points
-        self.apply_points_function_about_point(func, **kwargs)
+        self.apply_points_function_about_point(
+            func,
+            transform=(('stretch', factor, dim, kwargs)) if add_transform else None,
+            **kwargs,
+        )
         return self
 
     def apply_function(self, function, **kwargs):
@@ -356,12 +368,14 @@ class Mobject(Container):
     # Note, much of these are now redundant with default behavior of
     # above methods
 
-    def apply_points_function_about_point(self, func, about_point=None, about_edge=None):
+    def apply_points_function_about_point(self, func, transform=None, about_point=None, about_edge=None):
         if about_point is None:
             if about_edge is None:
                 about_edge = ORIGIN
             about_point = self.get_critical_point(about_edge)
-        for mob in self.family_members_with_points():
+        for mob in self.get_family():
+            if transform is not None:
+                mob.transformations.append(transform)
             mob.points -= about_point
             mob.points = func(mob.points)
             mob.points += about_point
@@ -468,6 +482,8 @@ class Mobject(Container):
 
     def rescale_to_fit(self, length, dim, stretch=False, **kwargs):
         old_length = self.length_over_dim(dim)
+        # print(self)
+        # print(f"scaling {old_length} to {length}")
         if old_length == 0:
             return self
         if stretch:
@@ -687,6 +703,7 @@ class Mobject(Container):
 
     def reduce_across_dimension(self, points_func, reduce_func, dim):
         points = self.get_all_points()
+        # print(points)
         if points is None or len(points) == 0:
             # Note, this default means things like empty VGroups
             # will appear to have a center at [0, 0, 0]
