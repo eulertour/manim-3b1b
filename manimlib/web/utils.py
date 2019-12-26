@@ -4,6 +4,8 @@ import sys
 if sys.platform == "emscripten":
     import js
     import pyodide
+else:
+    from manimlib.web.web_mock import tex2points
 
 def pointwise_function_wrapper(func):
     def wrapper(js_point):
@@ -83,9 +85,9 @@ def tex_to_svg_string(tex):
         print("searching cache for " + tex)
         return tex2svg[tex]
 
-def tex_to_paths(tex):
+def tex_to_points(tex):
     if sys.platform == "emscripten":
         return pyodide.as_nested_list(js.texToPaths(tex))
     else:
         print("searching cache for " + tex)
-        return tex2paths[tex]
+        return tex2points(tex)
