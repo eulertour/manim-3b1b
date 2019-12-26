@@ -4,8 +4,6 @@ import sys
 if sys.platform == "emscripten":
     import js
     import pyodide
-else:
-    from manimlib.web.web_mock import tex2svg, tex2paths
 
 def pointwise_function_wrapper(func):
     def wrapper(js_point):

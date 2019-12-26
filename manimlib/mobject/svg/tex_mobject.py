@@ -7,11 +7,13 @@ from manimlib.mobject.svg.svg_mobject import SVGMobject
 from manimlib.mobject.svg.svg_mobject import VMobjectFromSVGPathstring
 from manimlib.mobject.types.vectorized_mobject import VGroup
 from manimlib.mobject.types.vectorized_mobject import VectorizedPoint
+from manimlib.mobject.types.vectorized_mobject import VMobject
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.strings import split_string_list_to_isolate_substrings
 from manimlib.utils.tex_file_writing import tex_to_svg_file
 from manimlib.web.utils import tex_to_paths
 from manimlib.mobject.types.vectorized_mobject import VMobject
+from manimlib.web.web_mock import tex2points
 
 
 TEX_MOB_SCALE_FACTOR = 0.05
@@ -54,7 +56,9 @@ class SingleStringTexMobject(SVGMobject):
         #     self.organize_submobjects_left_to_right()
 
     def generate_points(self):
-        path_data = tex_to_paths(f"{self.prefix}{self.tex_string}{self.suffix}")
+        full_string = f"{self.prefix}{self.tex_string}{self.suffix}"
+        print(full_string)
+        path_data = tex2points(full_string)
         for point_list in path_data:
             if point_list:
                 vmob = VMobject()
