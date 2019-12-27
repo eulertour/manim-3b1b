@@ -87,7 +87,7 @@ def tex_to_svg_string(tex):
 
 def tex_to_points(tex):
     if sys.platform == "emscripten":
-        return pyodide.as_nested_list(js.texToPaths(tex))
+        return pyodide.as_nested_list(js.texToPoints(tex))
     else:
         print("searching cache for " + tex)
         return tex2points(tex)
