@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import warnings
 import numpy as np
 
@@ -211,6 +212,14 @@ class Arc(TipableVMobject):
     }
 
     def __init__(self, start_angle=0, angle=TAU / 4, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'start_angle': start_angle,
+                'angle': angle,
+                **kwargs,
+            })
         self.start_angle = start_angle
         self.angle = angle
         VMobject.__init__(self, **kwargs)
@@ -279,6 +288,13 @@ class Arc(TipableVMobject):
 
 class ArcBetweenPoints(Arc):
     def __init__(self, start, end, angle=TAU / 4, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([start, end])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'angle': angle,
+                **kwargs,
+            })
         Arc.__init__(
             self,
             angle=angle,
@@ -291,12 +307,24 @@ class ArcBetweenPoints(Arc):
 
 class CurvedArrow(ArcBetweenPoints):
     def __init__(self, start_point, end_point, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([start_point, end_point])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         ArcBetweenPoints.__init__(self, start_point, end_point, **kwargs)
         self.add_tip()
 
 
 class CurvedDoubleArrow(CurvedArrow):
     def __init__(self, start_point, end_point, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([start_point, end_point])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         CurvedArrow.__init__(
             self, start_point, end_point, **kwargs
         )
@@ -311,6 +339,12 @@ class Circle(Arc):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if hasattr(self, 'kwargs'):
             self.kwargs = { **kwargs, **self.kwargs }
         else:
@@ -348,6 +382,13 @@ class Dot(Circle):
     }
 
     def __init__(self, point=ORIGIN, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'point': point,
+                **kwargs,
+            })
         Circle.__init__(self, arc_center=point, **kwargs)
 
 
@@ -364,6 +405,12 @@ class Ellipse(Circle):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Circle.__init__(self, **kwargs)
         self.set_width(self.width, stretch=True)
         self.set_height(self.height, stretch=True)
@@ -431,6 +478,14 @@ class Line(TipableVMobject):
     }
 
     def __init__(self, start=LEFT, end=RIGHT, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'start': start,
+                'end': end,
+                **kwargs,
+            })
         digest_config(self, kwargs)
         self.set_start_and_end_attrs(start, end)
         VMobject.__init__(self, **kwargs)
@@ -537,6 +592,12 @@ class DashedLine(Line):
     }
 
     def __init__(self, *args, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(args)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Line.__init__(self, *args, **kwargs)
         ps_ratio = self.positive_space_ratio
         num_dashes = self.calculate_num_dashes(ps_ratio)
@@ -589,6 +650,12 @@ class TangentLine(Line):
     }
 
     def __init__(self, vmob, alpha, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([vmob, alpha])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         da = self.d_alpha
         a1 = np.clip(alpha - da, 0, 1)
@@ -608,6 +675,12 @@ class Elbow(VMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VMobject.__init__(self, **kwargs)
         self.set_points_as_corners([UP, UP + RIGHT, RIGHT])
         self.set_width(self.width, about_point=ORIGIN)
@@ -624,6 +697,12 @@ class Arrow(Line):
     }
 
     def __init__(self, *args, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(args)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Line.__init__(self, *args, **kwargs)
         # TODO, should this be affected when
         # Arrow.set_stroke is called?
@@ -695,6 +774,13 @@ class Vector(Arrow):
     }
 
     def __init__(self, direction=RIGHT, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'direction': direction,
+                **kwargs,
+            })
         if len(direction) == 2:
             direction = np.append(np.array(direction), 0)
         Arrow.__init__(self, ORIGIN, direction, **kwargs)
@@ -702,12 +788,24 @@ class Vector(Arrow):
 
 class DoubleArrow(Arrow):
     def __init__(self, *args, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(args)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Arrow.__init__(self, *args, **kwargs)
         self.add_tip(at_start=True)
 
 
 class CubicBezier(VMobject):
     def __init__(self, points, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([points])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VMobject.__init__(self, **kwargs)
         self.set_points(points)
 
@@ -718,6 +816,12 @@ class Polygon(VMobject):
     }
 
     def __init__(self, *vertices, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(vertices)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VMobject.__init__(self, **kwargs)
         self.set_points_as_corners(
             [*vertices, vertices[0]]
@@ -769,6 +873,13 @@ class RegularPolygon(Polygon):
     }
 
     def __init__(self, n=6, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'n': n,
+                **kwargs,
+            })
         digest_config(self, kwargs, locals())
         if self.start_angle is None:
             if n % 2 == 0:
@@ -782,6 +893,12 @@ class RegularPolygon(Polygon):
 
 class Triangle(RegularPolygon):
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         RegularPolygon.__init__(self, n=3, **kwargs)
 
 
@@ -794,6 +911,12 @@ class ArrowTip(Triangle):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Triangle.__init__(self, **kwargs)
         self.set_width(self.length)
         self.set_height(self.length, stretch=True)
@@ -824,6 +947,12 @@ class Rectangle(Polygon):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Polygon.__init__(self, UL, UR, DR, DL, **kwargs)
         self.set_width(self.width, stretch=True, add_transform=False)
         self.set_height(self.height, stretch=True, add_transform=False)
@@ -835,6 +964,12 @@ class Square(Rectangle):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if hasattr(self, 'kwargs'):
             self.kwargs = { **kwargs, **self.kwargs }
         else:
@@ -854,5 +989,11 @@ class RoundedRectangle(Rectangle):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Rectangle.__init__(self, **kwargs)
         self.round_corners(self.corner_radius)

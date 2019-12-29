@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.animation.animation import Animation
 from manimlib.animation.animation import DEFAULT_ANIMATION_LAG_RATIO
 from manimlib.animation.transform import Transform
@@ -54,6 +55,13 @@ class FadeInFrom(Transform):
     }
 
     def __init__(self, mobject, direction=None, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'direction': direction,
+                **kwargs,
+            })
         if direction is not None:
             self.direction = direction
         super().__init__(mobject, **kwargs)
@@ -84,6 +92,13 @@ class FadeOutAndShift(FadeOut):
     }
 
     def __init__(self, mobject, direction=None, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'direction': direction,
+                **kwargs,
+            })
         if direction is not None:
             self.direction = direction
         super().__init__(mobject, **kwargs)
@@ -106,6 +121,12 @@ class FadeOutAndShiftDown(FadeOutAndShift):
 
 class FadeInFromPoint(FadeIn):
     def __init__(self, mobject, point, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject, point])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.point = point
         super().__init__(mobject, **kwargs)
 
@@ -122,6 +143,13 @@ class FadeInFromLarge(FadeIn):
     }
 
     def __init__(self, mobject, scale_factor=2, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'scale_factor': scale_factor,
+                **kwargs,
+            })
         if scale_factor is not None:
             self.scale_factor = scale_factor
         super().__init__(mobject, **kwargs)

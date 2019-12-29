@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import operator as op
 
 from manimlib.constants import *
@@ -42,6 +43,12 @@ class NumberLine(Line):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         start = self.unit_size * self.x_min * RIGHT
         end = self.unit_size * self.x_max * RIGHT

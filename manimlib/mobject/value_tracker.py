@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 
 from manimlib.mobject.mobject import Mobject
@@ -12,6 +13,13 @@ class ValueTracker(Mobject):
     """
 
     def __init__(self, value=0, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'value': value,
+                **kwargs,
+            })
         Mobject.__init__(self, **kwargs)
         self.points = np.zeros((1, 3))
         self.set_value(value)

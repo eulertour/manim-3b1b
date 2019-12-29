@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.types.vectorized_mobject import VMobject
 from manimlib.utils.config_ops import digest_config
@@ -15,6 +16,13 @@ class ParametricFunction(VMobject):
     }
 
     def __init__(self, function=None, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'function': function,
+                **kwargs,
+            })
         # either get a function from __init__ or from CONFIG
         self.function = function or self.function
         VMobject.__init__(self, **kwargs)
@@ -85,6 +93,12 @@ class FunctionGraph(ParametricFunction):
     }
 
     def __init__(self, function, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([function])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         self.parametric_function = \
             lambda t: np.array([t, function(t), 0])

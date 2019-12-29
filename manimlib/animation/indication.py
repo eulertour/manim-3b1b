@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 
 from manimlib.constants import *
@@ -30,6 +31,12 @@ class FocusOn(Transform):
     }
 
     def __init__(self, focus_point, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([focus_point])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.focus_point = focus_point
         # Initialize with blank mobject, while create_target
         # and create_starting_mobject handle the meat
@@ -76,6 +83,13 @@ class Flash(AnimationGroup):
     }
 
     def __init__(self, point, color=YELLOW, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([point])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'color': color,
+                **kwargs,
+            })
         self.point = point
         self.color = color
         digest_config(self, kwargs)
@@ -116,6 +130,12 @@ class CircleIndicate(Indicate):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         circle = self.get_circle(mobject)
         super().__init__(circle, **kwargs)
@@ -163,6 +183,12 @@ class ShowCreationThenFadeOut(Succession):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(
             ShowCreation(mobject),
             FadeOut(mobject),
@@ -180,6 +206,12 @@ class AnimationOnSurroundingRectangle(AnimationGroup):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         if "surrounding_rectangle_config" in kwargs:
             kwargs.pop("surrounding_rectangle_config")
@@ -225,6 +257,12 @@ class ApplyWave(Homotopy):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs, locals())
         left_x = mobject.get_left()[0]
         right_x = mobject.get_right()[0]

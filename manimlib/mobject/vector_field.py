@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 import os
 import itertools as it
@@ -145,6 +146,12 @@ class VectorField(VGroup):
     }
 
     def __init__(self, func, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([func])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VGroup.__init__(self, **kwargs)
         self.func = func
         self.rgb_gradient_function = get_rgb_gradient_function(
@@ -221,6 +228,12 @@ class StreamLines(VGroup):
     }
 
     def __init__(self, func, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([func])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VGroup.__init__(self, **kwargs)
         self.func = func
         dt = self.dt
@@ -293,6 +306,12 @@ class ShowPassingFlashWithThinningStrokeWidth(AnimationGroup):
     }
 
     def __init__(self, vmobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([vmobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         max_stroke_width = vmobject.get_stroke_width()
         max_time_width = kwargs.pop("time_width", self.time_width)
@@ -323,6 +342,12 @@ class AnimatedStreamLines(VGroup):
     }
 
     def __init__(self, stream_lines, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([stream_lines])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VGroup.__init__(self, **kwargs)
         self.stream_lines = stream_lines
         for line in stream_lines:

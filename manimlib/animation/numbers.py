@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import warnings
 
 from manimlib.animation.animation import Animation
@@ -11,6 +12,12 @@ class ChangingDecimal(Animation):
     }
 
     def __init__(self, decimal_mob, number_update_func, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([decimal_mob, number_update_func])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.check_validity_of_input(decimal_mob)
         self.yell_about_depricated_configuration(**kwargs)
         self.number_update_func = number_update_func
@@ -44,6 +51,12 @@ class ChangingDecimal(Animation):
 
 class ChangeDecimalToValue(ChangingDecimal):
     def __init__(self, decimal_mob, target_number, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([decimal_mob, target_number])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         start_number = decimal_mob.number
         super().__init__(
             decimal_mob,

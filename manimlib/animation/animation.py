@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from copy import deepcopy
 
 import numpy as np
@@ -28,6 +29,12 @@ class Animation(object):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         assert(isinstance(mobject, Mobject))
         digest_config(self, kwargs)
         self.mobject = mobject

@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import operator as op
 
 from manimlib.animation.composition import LaggedStart
@@ -19,6 +20,12 @@ class MoveCar(ApplyMethod):
     }
 
     def __init__(self, car, target_point, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([car, target_point])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.check_if_input_is_car(car)
         self.target_point = target_point
         super().__init__(car.move_to, target_point, **kwargs)
@@ -62,6 +69,12 @@ class Broadcast(LaggedStart):
     }
 
     def __init__(self, focal_point, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([focal_point])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         circles = VGroup()
         for x in range(self.n_circles):

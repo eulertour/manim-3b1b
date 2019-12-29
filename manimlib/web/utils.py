@@ -1,5 +1,3 @@
-from manimlib.mobject.mobject import Group, Mobject
-from manimlib.mobject.types.vectorized_mobject import VMobject, VGroup
 import sys
 if sys.platform == "emscripten":
     import js
@@ -19,14 +17,16 @@ def animation_to_json(play_args, play_kwargs):
         args = animation.get_args()
         return {
           "className": animation.__class__.__name__,
-          "args": list(map(lambda mob: id(mob), args[1])),
+          "args": animation.args,
+          "config": animation.config,
           "durationSeconds": animation.run_time,
           "func": pointwise_function_wrapper(args[0]),
         }
     else:
         return {
           "className": animation.__class__.__name__,
-          "args": list(map(lambda mob: id(mob), animation.get_args())),
+          "args": animation.args,
+          "config": animation.config,
           "durationSeconds": animation.run_time,
         }
 
@@ -47,6 +47,8 @@ def scene_mobjects_to_json(mobjects):
     }, mobjects))
 
 def mobject_to_json(mob):
+    from manimlib.mobject.mobject import Group, Mobject
+    from manimlib.mobject.types.vectorized_mobject import VMobject, VGroup
     if isinstance(mob, VMobject):
         ret = {
             "className": mob.__class__.__name__,

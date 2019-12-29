@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.animation.animation import Animation
 from manimlib.animation.composition import Succession
 from manimlib.mobject.types.vectorized_mobject import VMobject
@@ -53,6 +54,12 @@ class DrawBorderThenFill(Animation):
     }
 
     def __init__(self, vmobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([vmobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.check_validity_of_input(vmobject)
         super().__init__(vmobject, **kwargs)
 
@@ -107,6 +114,12 @@ class Write(DrawBorderThenFill):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         self.set_default_config_from_length(mobject)
         super().__init__(mobject, **kwargs)
@@ -129,6 +142,12 @@ class ShowIncreasingSubsets(Animation):
     }
 
     def __init__(self, group, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([group])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.all_submobs = list(group.submobjects)
         super().__init__(group, **kwargs)
 
@@ -143,6 +162,12 @@ class ShowIncreasingSubsets(Animation):
 
 class ShowSubmobjectsOneByOne(ShowIncreasingSubsets):
     def __init__(self, group, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([group])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         new_group = Group(*group)
         super().__init__(new_group, **kwargs)
 
@@ -164,6 +189,12 @@ class AddTextWordByWord(Succession):
     }
 
     def __init__(self, text_mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([text_mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         tpc = self.time_per_char
         anims = it.chain(*[

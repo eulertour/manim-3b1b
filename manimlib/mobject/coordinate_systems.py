@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 import numbers
 
@@ -141,6 +142,12 @@ class Axes(VGroup, CoordinateSystem):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VGroup.__init__(self, **kwargs)
         self.x_axis = self.create_axis(
             self.x_min, self.x_max, self.x_axis_config
@@ -218,6 +225,12 @@ class ThreeDAxes(Axes):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Axes.__init__(self, **kwargs)
         z_axis = self.z_axis = self.create_axis(
             self.z_min, self.z_max, self.z_axis_config
@@ -284,6 +297,12 @@ class NumberPlane(Axes):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         kwargs["number_line_config"] = self.axis_config
         Axes.__init__(self, **kwargs)

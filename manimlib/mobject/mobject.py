@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from functools import reduce
 import copy
 import itertools as it
@@ -37,6 +38,12 @@ class Mobject(Container):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if hasattr(self, 'kwargs'):
             self.kwargs = { **kwargs, **self.kwargs }
         else:
@@ -1149,6 +1156,12 @@ class Mobject(Container):
 
 class Group(Mobject):
     def __init__(self, *mobjects, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(mobjects)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if hasattr(self, 'kwargs'):
             self.kwargs = { **kwargs, **self.kwargs }
         else:

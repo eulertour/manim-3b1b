@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.svg.tex_mobject import SingleStringTexMobject
 from manimlib.mobject.types.vectorized_mobject import VMobject
@@ -16,6 +17,13 @@ class DecimalNumber(VMobject):
     }
 
     def __init__(self, number=0, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'number': number,
+                **kwargs,
+            })
         super().__init__(**kwargs)
         self.number = number
         self.initial_config = kwargs

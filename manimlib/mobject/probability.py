@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.geometry import Line
 from manimlib.mobject.geometry import Rectangle
@@ -161,6 +162,12 @@ class BarChart(VGroup):
     }
 
     def __init__(self, values, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([values])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VGroup.__init__(self, **kwargs)
         if self.max_value is None:
             self.max_value = max(values)

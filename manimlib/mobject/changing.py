@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.types.vectorized_mobject import VMobject
 from manimlib.mobject.types.vectorized_mobject import VGroup
@@ -16,6 +17,12 @@ class AnimatedBoundary(VGroup):
     }
 
     def __init__(self, vmobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([vmobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(**kwargs)
         self.vmobject = vmobject
         self.boundary_copies = [
@@ -78,6 +85,12 @@ class TracedPath(VMobject):
     }
 
     def __init__(self, traced_point_func, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([traced_point_func])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(**kwargs)
         self.traced_point_func = traced_point_func
         self.add_updater(lambda m: m.update_path())

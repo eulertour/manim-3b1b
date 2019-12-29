@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import inspect
 
 import numpy as np
@@ -24,6 +25,13 @@ class Transform(Animation):
     }
 
     def __init__(self, mobject, target_mobject=None, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'target_mobject': target_mobject,
+                **kwargs,
+            })
         super().__init__(mobject, **kwargs)
         self.target_mobject = target_mobject
         self.init_path_func()
@@ -118,6 +126,12 @@ class TransformFromCopy(Transform):
     """
 
     def __init__(self, mobject, target_mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject, target_mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(target_mobject, mobject, **kwargs)
 
     def interpolate(self, alpha):
@@ -138,6 +152,12 @@ class CounterclockwiseTransform(Transform):
 
 class MoveToTarget(Transform):
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.check_validity_of_input(mobject)
         super().__init__(mobject, mobject.target, **kwargs)
 
@@ -151,6 +171,12 @@ class MoveToTarget(Transform):
 
 class ApplyMethod(Transform):
     def __init__(self, method, *args, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([method, *args])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         """
         method is a method of Mobject, *args are arguments for
         that method.  Key word arguments should be passed in
@@ -191,16 +217,26 @@ class ApplyPointwiseFunction(ApplyMethod):
         "run_time": DEFAULT_POINTWISE_FUNCTION_RUN_TIME
     }
 
-    def get_args(self):
-        return self.args
-
     def __init__(self, function, mobject, **kwargs):
-        self.args = [function, mobject]
+        if not hasattr(self, "args"):
+            self.args = serialize_args([function, mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
+        self.function = function
+        self.mobject = mobject
         super().__init__(mobject.apply_function, function, **kwargs)
 
 
 class ApplyPointwiseFunctionToCenter(ApplyPointwiseFunction):
     def __init__(self, function, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([function, mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.function = function
         super().__init__(mobject.move_to, **kwargs)
 
@@ -213,26 +249,56 @@ class ApplyPointwiseFunctionToCenter(ApplyPointwiseFunction):
 
 class FadeToColor(ApplyMethod):
     def __init__(self, mobject, color, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject, color])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(mobject.set_color, color, **kwargs)
 
 
 class ScaleInPlace(ApplyMethod):
     def __init__(self, mobject, scale_factor, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject, scale_factor])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(mobject.scale, scale_factor, **kwargs)
 
 
 class ShrinkToCenter(ScaleInPlace):
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(mobject, 0, **kwargs)
 
 
 class Restore(ApplyMethod):
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(mobject.restore, **kwargs)
 
 
 class ApplyFunction(Transform):
     def __init__(self, function, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([function, mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.function = function
         super().__init__(mobject, **kwargs)
 
@@ -242,6 +308,12 @@ class ApplyFunction(Transform):
 
 class ApplyMatrix(ApplyPointwiseFunction):
     def __init__(self, matrix, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([matrix, mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         matrix = self.initialize_matrix(matrix)
 
         def func(p):
@@ -262,6 +334,12 @@ class ApplyMatrix(ApplyPointwiseFunction):
 
 class ApplyComplexFunction(ApplyMethod):
     def __init__(self, function, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([function, mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.function = function
         method = mobject.apply_complex_function
         super().__init__(method, function, **kwargs)
@@ -280,6 +358,12 @@ class CyclicReplace(Transform):
     }
 
     def __init__(self, *mobjects, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(mobjects)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         self.group = Group(*mobjects)
         super().__init__(self.group, **kwargs)
 
@@ -302,6 +386,12 @@ class TransformAnimations(Transform):
     }
 
     def __init__(self, start_anim, end_anim, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([start_anim, end_anim])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs, locals())
         if "run_time" in kwargs:
             self.run_time = kwargs.pop("run_time")

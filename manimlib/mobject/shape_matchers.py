@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.geometry import Line
 from manimlib.mobject.geometry import Rectangle
@@ -14,6 +15,12 @@ class SurroundingRectangle(Rectangle):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         kwargs["width"] = mobject.get_width() + 2 * self.buff
         kwargs["height"] = mobject.get_height() + 2 * self.buff
@@ -31,6 +38,12 @@ class BackgroundRectangle(SurroundingRectangle):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SurroundingRectangle.__init__(self, mobject, **kwargs)
         self.original_fill_opacity = self.fill_opacity
 
@@ -66,6 +79,12 @@ class Cross(VGroup):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VGroup.__init__(self,
                         Line(UP + LEFT, DOWN + RIGHT),
                         Line(UP + RIGHT, DOWN + LEFT),
@@ -80,6 +99,12 @@ class Underline(Line):
     }
 
     def __init__(self, mobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([mobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(LEFT, RIGHT)
         self.match_width(mobject)
         self.next_to(mobject, DOWN, buff=self.buff)
