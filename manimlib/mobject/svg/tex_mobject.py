@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from functools import reduce
 import operator as op
 
@@ -40,6 +41,12 @@ class SingleStringTexMobject(SVGMobject):
     }
 
     def __init__(self, tex_string, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([tex_string])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if hasattr(self, 'kwargs'):
             self.kwargs = { 'tex_string': tex_string, **kwargs, **self.kwargs }
         else:
@@ -155,6 +162,12 @@ class TexMobject(SingleStringTexMobject):
     }
 
     def __init__(self, *tex_strings, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(tex_strings)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         tex_strings = self.break_up_tex_strings(tex_strings)
         self.tex_strings = tex_strings
@@ -280,6 +293,12 @@ class BulletedList(TextMobject):
     }
 
     def __init__(self, *items, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(items)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         line_separated_items = [s + "\\\\" for s in items]
         TextMobject.__init__(self, *line_separated_items, **kwargs)
         for part in self:
@@ -315,6 +334,12 @@ class TexMobjectFromPresetString(TexMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         TexMobject.__init__(self, self.tex, **kwargs)
         self.set_color(self.color)
@@ -331,6 +356,12 @@ class Title(TextMobject):
     }
 
     def __init__(self, *text_parts, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(text_parts)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         TextMobject.__init__(self, *text_parts, **kwargs)
         self.scale(self.scale_factor)
         self.to_edge(UP)

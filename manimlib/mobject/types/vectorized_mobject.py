@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import itertools as it
 import sys
 
@@ -867,6 +868,12 @@ class VMobject(Mobject):
 
 class VGroup(VMobject):
     def __init__(self, *vmobjects, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(vmobjects)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if not all([isinstance(m, VMobject) for m in vmobjects]):
             raise Exception("All submobjects must be of type VMobject")
         VMobject.__init__(self, **kwargs)
@@ -883,6 +890,13 @@ class VectorizedPoint(VMobject):
     }
 
     def __init__(self, location=ORIGIN, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'location': location,
+                **kwargs,
+            })
         VMobject.__init__(self, **kwargs)
         self.set_points(np.array([location]))
 
@@ -901,6 +915,12 @@ class VectorizedPoint(VMobject):
 
 class CurvesAsSubmobjects(VGroup):
     def __init__(self, vmobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([vmobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VGroup.__init__(self, **kwargs)
         tuples = vmobject.get_cubic_bezier_tuples()
         for tup in tuples:
@@ -918,6 +938,12 @@ class DashedVMobject(VMobject):
     }
 
     def __init__(self, vmobject, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([vmobject])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VMobject.__init__(self, **kwargs)
         num_dashes = self.num_dashes
         ps_ratio = self.positive_space_ratio

@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import itertools as it
 import re
 import string
@@ -40,6 +41,13 @@ class SVGMobject(VMobject):
     }
 
     def __init__(self, svg_string=None, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'svg_string': svg_string,
+                **kwargs,
+            })
         digest_config(self, kwargs)
         self.svg_string = svg_string or self.svg_string
         assert(self.svg_string is not None)
@@ -302,6 +310,12 @@ class SVGMobject(VMobject):
 
 class VMobjectFromSVGPathstring(VMobject):
     def __init__(self, path_string, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([path_string])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if hasattr(self, 'kwargs'):
             self.kwargs = { 'path_string': path_string, **kwargs, **self.kwargs }
         else:

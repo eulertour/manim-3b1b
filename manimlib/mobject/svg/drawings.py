@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 import itertools as it
 import string
 
@@ -49,6 +50,12 @@ class BitcoinLogo(SVGMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
         self[0].set_fill(self.fill_color, self.fill_opacity)
         self[1].set_fill(self.inner_color, 1)
@@ -72,6 +79,12 @@ class SunGlasses(SVGMobject):
     }
 
     def __init__(self, pi_creature, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([pi_creature])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
         self.set_stroke(WHITE, width=0)
         self.set_fill(GREY, 1)
@@ -155,6 +168,12 @@ class AoPSLogo(SVGMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
         self.set_stroke(WHITE, width=0)
         colors = [BLUE_E, "#008445", GREEN_B]
@@ -186,6 +205,12 @@ class PartyHat(SVGMobject):
     NUM_DOTS = 6
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
         self.set_height(self.height)
         if self.pi_creature is not None:
@@ -221,6 +246,12 @@ class Laptop(VGroup):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         super().__init__(**kwargs)
         body = Cube(side_length=1)
         for dim, scale_factor in enumerate(self.body_dimensions):
@@ -290,6 +321,12 @@ class PatreonLogo(SVGMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
         self.set_width(self.width)
         self.center()
@@ -302,6 +339,12 @@ class VideoIcon(SVGMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
         self.center()
         self.set_width(self.width)
@@ -316,6 +359,12 @@ class VideoSeries(VGroup):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         videos = [VideoIcon() for x in range(self.num_videos)]
         VGroup.__init__(self, *videos, **kwargs)
@@ -333,6 +382,13 @@ class Headphones(SVGMobject):
     }
 
     def __init__(self, pi_creature=None, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'pi_creature': pi_creature,
+                **kwargs,
+            })
         digest_config(self, kwargs)
         SVGMobject.__init__(self, file_name=self.file_name, **kwargs)
         self.stretch(self.y_stretch_factor, 1)
@@ -350,6 +406,12 @@ class Clock(VGroup):
     CONFIG = {}
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         circle = Circle(color=WHITE)
         ticks = []
         for x in range(12):
@@ -382,6 +444,12 @@ class ClockPassesTime(Animation):
     }
 
     def __init__(self, clock, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([clock])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         assert(isinstance(clock, Clock))
         rot_kwargs = {
@@ -424,6 +492,12 @@ class Bubble(SVGMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs, locals())
         if self.file_name is None:
             raise Exception("Must invoke Bubble subclass")
@@ -526,6 +600,12 @@ class ThoughtBubble(Bubble):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         Bubble.__init__(self, **kwargs)
         self.submobjects.sort(
             key=lambda m: m.get_bottom()[1]
@@ -545,6 +625,12 @@ class Car(SVGMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
 
         path = self.submobjects[0]
@@ -634,6 +720,12 @@ class VectorizedEarth(SVGMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         SVGMobject.__init__(self, **kwargs)
         circle = Circle(
             stroke_width=3,
@@ -669,6 +761,12 @@ class Logo(VMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         VMobject.__init__(self, **kwargs)
         self.add_iris_back()
         self.add_spikes()
@@ -837,6 +935,12 @@ class Logo(VMobject):
 # Cards
 class DeckOfCards(VGroup):
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         possible_values = list(map(str, list(range(1, 11)))) + ["J", "Q", "K"]
         possible_suits = ["hearts", "diamonds", "spades", "clubs"]
         VGroup.__init__(self, *[
@@ -863,6 +967,13 @@ class PlayingCard(VGroup):
     }
 
     def __init__(self, key=None, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'key': key,
+                **kwargs,
+            })
         VGroup.__init__(self, key=key, **kwargs)
 
     def generate_points(self):
@@ -1070,6 +1181,12 @@ class SuitSymbol(SVGMobject):
     }
 
     def __init__(self, suit_name, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([suit_name])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         suits_to_colors = {
             "hearts": self.red,

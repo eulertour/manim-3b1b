@@ -1,3 +1,4 @@
+from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.mobject import Mobject
 from manimlib.utils.bezier import interpolate
@@ -192,6 +193,12 @@ class Mobject1D(PMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         self.epsilon = 1.0 / self.density
         Mobject.__init__(self, **kwargs)
@@ -216,6 +223,12 @@ class Mobject2D(PMobject):
     }
 
     def __init__(self, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         digest_config(self, kwargs)
         self.epsilon = 1.0 / self.density
         Mobject.__init__(self, **kwargs)
@@ -223,6 +236,12 @@ class Mobject2D(PMobject):
 
 class PGroup(PMobject):
     def __init__(self, *pmobs, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args(pmobs)
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                **kwargs,
+            })
         if not all([isinstance(m, PMobject) for m in pmobs]):
             raise Exception("All submobjects must be of type PMobject")
         super().__init__(**kwargs)
@@ -238,6 +257,13 @@ class PointCloudDot(Mobject1D):
     }
 
     def __init__(self, center=ORIGIN, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'center': center,
+                **kwargs,
+            })
         Mobject1D.__init__(self, **kwargs)
         self.shift(center)
 
@@ -255,5 +281,12 @@ class Point(PMobject):
     }
 
     def __init__(self, location=ORIGIN, **kwargs):
+        if not hasattr(self, "args"):
+            self.args = serialize_args([])
+        if not hasattr(self, "config"):
+            self.config = serialize_config({
+                'location': location,
+                **kwargs,
+            })
         PMobject.__init__(self, **kwargs)
         self.add_points([location])
