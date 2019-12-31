@@ -78,13 +78,6 @@ def get_mobject_style(mob):
         "strokeWidth": mob.get_stroke_width(),
     }
 
-def tex_to_svg_string(tex):
-    if sys.platform == "emscripten":
-        return js.MathJax.tex2svg(tex).innerHTML
-    else:
-        print("searching cache for " + tex)
-        return tex2svg[tex]
-
 def tex_to_points(tex):
     if sys.platform == "emscripten":
         return pyodide.as_nested_list(js.texToPoints(tex))
