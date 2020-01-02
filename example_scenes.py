@@ -100,7 +100,7 @@ class GroupExample(WebScene):
         self.play(Transform(g1, g2))
 
 
-class WarpSquare(Scene):
+class WarpSquare(WebScene):
     def construct(self):
         square = Square()
         self.play(ApplyPointwiseFunction(
