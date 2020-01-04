@@ -1,5 +1,8 @@
 import sys
+import collections
 import numpy as np
+import copy
+import itertools as it
 if sys.platform == "emscripten":
     import js
     import pyodide
@@ -100,20 +103,21 @@ def tex_to_points(tex):
         print("searching cache for " + tex)
         return tex2points(tex)
 
-SUBMOBJECT_IGNORE_LIST = ["SingleStringTexMobject"]
+CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED = ["TexMobject", "TextMobject"]
 
-def serialize_mobject(mob, added=True):
+def serialize_mobject(mob, added=False):
     from manimlib.mobject.mobject import Group, Mobject
     from manimlib.mobject.types.vectorized_mobject import VMobject, VGroup
     class_name = mob.__class__.__name__
     ret = {
         "className": class_name,
-        "args": mob.args,
-        "config": mob.config,
-        "submobjects": [id(mob) for mob in mob.submobjects if class_name not in SUBMOBJECT_IGNORE_LIST],
-        "transformations": mob.transformations,
+        "args": copy.deepcopy(mob.args),
+        "config": copy.deepcopy(mob.config),
+        "transformations": copy.deepcopy(mob.transformations),
         "added": added,
     }
+    if class_name not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED:
+        ret["submobjects"] = [id(mob) for mob in mob.submobjects if class_name not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED] 
     if isinstance(mob, VMobject):
         ret["position"] = mob.get_center()
         ret["style"] = get_mobject_style(mob)
@@ -164,4 +168,29 @@ def mobject_serialization_diff(starting_serialization, ending_serialization):
         else:
             if starting_attr != ending_attr:
                 ret[attr] = (starting_attr, ending_attr)
+    return ret
+
+def get_submobjects_for_serialization(mob):
+    Q = collections.deque()
+    Q.append(mob)
+    ret = []
+    while Q:
+        parent = Q.pop()
+        ret.append(parent)
+        if parent.__class__.__name__ not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED:
+            for child in parent.submobjects:
+                Q.append(child)
+    return list(ret)
+
+def get_mobject_hierarchies_from_scene(scene):
+    recursive_mobjects_in_scene_map = map(lambda mob: get_submobjects_for_serialization(mob), scene.mobjects)
+    recursive_mobjects_in_scene = it.chain(*[list(m) for m in recursive_mobjects_in_scene_map])
+    return recursive_mobjects_in_scene
+
+
+def get_animated_mobjects(animation):
+    ret = [animation.mobject]
+    from manimlib.animation.transform import Transform
+    if isinstance(animation, Transform) and animation.target_mobject is not None:
+        ret.append(animation.target_mobject)
     return ret
