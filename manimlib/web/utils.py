@@ -33,16 +33,14 @@ def animation_to_json(play_args, play_kwargs):
         args = animation.get_args()
         return {
           "className": animation.__class__.__name__,
-          "args": animation.args,
-          "config": animation.config,
+          "args": list(map(lambda mob: id(mob), args[1])),
           "durationSeconds": animation.run_time,
           "func": pointwise_function_wrapper(args[0]),
         }
     else:
         return {
           "className": animation.__class__.__name__,
-          "args": animation.args,
-          "config": animation.config,
+          "args": list(map(lambda mob: id(mob), animation.get_args())),
           "durationSeconds": animation.run_time,
         }
 

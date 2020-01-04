@@ -217,6 +217,9 @@ class ApplyPointwiseFunction(ApplyMethod):
         "run_time": DEFAULT_POINTWISE_FUNCTION_RUN_TIME
     }
 
+    def get_args(self):
+        return [self.function, self.mobject]
+
     def __init__(self, function, mobject, **kwargs):
         if not hasattr(self, "args"):
             self.args = serialize_args([function, mobject])
