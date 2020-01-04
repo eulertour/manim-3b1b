@@ -138,7 +138,7 @@ def transforms_equal(transform1, transform2):
     if command1 == "rotate":
         return rotate_transforms_equal(transform1, transform2)
     else:
-        print(f"Unknwn transformation {command1}")
+        print(f"Unknown transformation {command1}")
 
 def transform_lists_equal(starting_transforms, ending_transforms):
     if len(starting_transforms) != len(ending_transforms):
