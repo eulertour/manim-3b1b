@@ -22,6 +22,9 @@ def main():
     pp.pprint(scene.animation_diffs)
     print()
 
+    print("scene.animation_info_list")
+    pp.pprint(scene.animation_info_list)
+    print()
 
     # pp.pprint(scene.scenes_before_animation)
     # pp.pprint(scene.animation_list)

@@ -8,6 +8,7 @@ from manimlib.web.utils import (
     scene_mobjects_to_json,
     mobject_to_json,
     serialize_mobject,
+    serialize_animation,
     mobject_serialization_diff,
     get_mobject_hierarchies_from_scene,
     get_animated_mobjects,
@@ -34,6 +35,7 @@ class WebScene(Scene):
         self.current_mobject_serializations = {}
         self.scene_diffs = []
         self.animation_diffs = []
+        self.animation_info_list = []
 
     def render(self):
         # Regular Scenes render upon instantiation.
@@ -41,7 +43,7 @@ class WebScene(Scene):
 
     def play(self, *args, **kwargs):
         animation = args[0]
-
+        self.animation_info_list.append(serialize_animation(animation))
         self.scene_diffs.append(self.compute_diff(next_animation=animation))
 
         if animation.__class__.__name__.startswith("ApplyPointwiseFunction"):
@@ -84,6 +86,7 @@ class WebScene(Scene):
         }
         for mob_id in new_mobject_serializations:
             if mob_id not in self.initial_mobject_serializations:
+                # name it
                 self.initial_mobject_serializations[mob_id] = copy.deepcopy(new_mobject_serializations[mob_id])
         return self.diff_new_serializations(
             new_mobject_serializations,

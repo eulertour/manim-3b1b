@@ -101,6 +101,9 @@ def tex_to_points(tex):
         print("searching cache for " + tex)
         return tex2points(tex)
 
+def serialize_animation(animation):
+    return (animation.__class__.__name__, animation.args, animation.config)
+
 CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED = ["TexMobject", "TextMobject"]
 
 def serialize_mobject(mob, added=False):
