@@ -12,7 +12,9 @@ from manimlib.web.utils import (
     serialize_animation,
     mobject_serialization_diff,
     get_mobject_hierarchies_from_scene,
+    get_mobject_hierarchies_from_mobject_list,
     get_animated_mobjects,
+    get_submobjects_for_serialization,
 )
 from manimlib.mobject.mobject import Mobject, Group
 from manimlib.mobject.svg.tex_mobject import (
@@ -108,9 +110,15 @@ class WebScene(Scene):
                 mob_id = id(animation_mobject)
                 if mob_id not in self.current_mobject_serializations:
                     # This Mobject hasn't been seen before.
-                    self.initial_mobject_serializations[mob_id] = serialize_mobject(animation_mobject)
-                    if mob_id not in self.mobject_ids_to_names:
-                        self.name_mobject(mob_id, animation_mobject.__class__.__name__)
+                    animation_mobject_serializations = OrderedDict([
+                        (id(mob), serialize_mobject(mob, added=False))
+                        for mob in get_submobjects_for_serialization(animation_mobject)
+                    ])
+                    for mob_id in animation_mobject_serializations:
+                        if mob_id not in self.mobject_ids_to_names:
+                            self.name_mobject(mob_id, animation_mobject_serializations[mob_id]["className"])
+                        if mob_id not in self.initial_mobject_serializations:
+                            self.initial_mobject_serializations[mob_id] = copy.deepcopy(animation_mobject_serializations[mob_id])
                 elif self.current_mobject_serializations[mob_id]["added"] == False:
                     # This Mobject may have been changed offscreen.
                     ret[id(animation_mobject)] = serialize_mobject(animation_mobject)
@@ -142,26 +150,66 @@ class WebScene(Scene):
         return ret
 
     def rename_diff(self, diff):
-        return diff
+        new_diff = copy.deepcopy(diff)
+        if "submobjects" in new_diff and new_diff["submobjects"]:
+            print(diff)
+            print(new_diff)
+            starting_submobjects, ending_submobjects = new_diff["submobjects"]
+            new_starting_submobjects = list(map(lambda submob_id: self.mobject_ids_to_names[submob_id], starting_submobjects))
+            new_ending_submobjects = list(map(lambda submob_id: self.mobject_ids_to_names[submob_id], ending_submobjects))
+            new_diff["submobjects"] = (new_starting_submobjects, new_ending_submobjects)
+        if "args" in new_diff and new_diff["args"]:
+            new_diff["args"] = list(map(lambda submob_id: self.mobject_ids_to_names[submob_id], new_diff["args"]))
+        return new_diff
 
     def rename_diffs(self, diffs):
+        new_diffs = []
         for diff in diffs:
-            self.scene_diffs[self.mobject_ids_to_names[mob_id]] = \
-                self.rename_scene_diff(self.scene_diffs[mob_id])
-            del self.scene_diffs[mob_id]
-
-    def rename_scene_diffs(self):
-        # self.rename_diffs(self.scene_diffs)
-        pass
-
-    def rename_animation_diffs(self):
-        pass
+            new_diff = {}
+            for mob_id in diff:
+                new_diff[self.mobject_ids_to_names[mob_id]] = self.rename_diff(diff[mob_id])
+            new_diffs.append(new_diff)
+        return new_diffs
 
     def rename_animation_info_list(self):
-        pass
+        new_info = []
+        for info in self.animation_info_list:
+            animation_class, args, config = info
+            new_args = []
+            for arg in args:
+                if arg in self.mobject_ids_to_names:
+                    new_args.append(self.mobject_ids_to_names[arg])
+                else:
+                    new_args.append(arg)
+            new_config = {}
+            for key, val in config.items():
+                if val in self.mobject_ids_to_names:
+                    new_config[key] = self.mobject_ids_to_names[val]
+                else:
+                    new_config[key] = val
+            new_info.append((animation_class, new_args, new_config))
+        self.animation_info_list = new_info
+
+    def rename_initial_mobject_serializations(self):
+        new_mobject_dict = {}
+        for mob_id in self.initial_mobject_serializations:
+            new_serialization = self.initial_mobject_serializations[mob_id]
+            if "submobjects" in new_serialization:
+                new_serialization["submobjects"] = list(map(lambda submob_id: self.mobject_ids_to_names[submob_id], new_serialization["submobjects"]))
+            if "args" in new_serialization:
+                new_args = []
+                for arg in new_serialization["args"]:
+                    if arg in self.mobject_ids_to_names:
+                        new_args.append(self.mobject_ids_to_names[arg])
+                    else:
+                        new_args.append(arg)
+                new_serialization["args"] = new_args
+            new_mobject_dict[self.mobject_ids_to_names[mob_id]] = new_serialization
+        self.initial_mobject_serializations = new_mobject_dict
 
     def tear_down(self):
-        self.rename_scene_diffs()
-        self.rename_animation_diffs()
+        self.rename_initial_mobject_serializations()
+        self.scene_diffs = self.rename_diffs(self.scene_diffs)
+        self.animation_diffs = self.rename_diffs(self.animation_diffs)
         self.rename_animation_info_list()
         return super(WebScene, self).tear_down()

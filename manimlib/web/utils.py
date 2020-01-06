@@ -118,7 +118,7 @@ def serialize_mobject(mob, added=False):
         "added": added,
     }
     if class_name not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED:
-        ret["submobjects"] = [id(mob) for mob in mob.submobjects if class_name not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED] 
+        ret["submobjects"] = [id(mob) for mob in mob.submobjects]
     if isinstance(mob, VMobject):
         ret["position"] = mob.get_center()
         ret["style"] = get_mobject_style(mob)
@@ -183,10 +183,13 @@ def get_submobjects_for_serialization(mob):
                 Q.append(child)
     return list(ret)
 
-def get_mobject_hierarchies_from_scene(scene):
-    recursive_mobjects_in_scene_map = map(lambda mob: get_submobjects_for_serialization(mob), scene.mobjects)
+def get_mobject_hierarchies_from_mobject_list(mobs):
+    recursive_mobjects_in_scene_map = map(lambda mob: get_submobjects_for_serialization(mob), mobs)
     recursive_mobjects_in_scene = it.chain(*[list(m) for m in recursive_mobjects_in_scene_map])
     return recursive_mobjects_in_scene
+
+def get_mobject_hierarchies_from_scene(scene):
+    return get_mobject_hierarchies_from_mobject_list(scene.mobjects)
 
 
 def get_animated_mobjects(animation):

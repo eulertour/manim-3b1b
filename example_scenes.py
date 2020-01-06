@@ -97,7 +97,7 @@ class GroupExample(WebScene):
         g2 = Group(r2, s2, c2)
 
         self.play(FadeIn(g1))
-        self.play(Transform(g1, g2))
+        self.play(ReplacementTransform(g1, g2))
 
 
 class WarpSquare(WebScene):
