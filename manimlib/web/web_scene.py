@@ -2,6 +2,7 @@ from manimlib.scene.scene import Scene
 from manimlib.constants import *
 import copy
 import itertools as it
+from collections import defaultdict, OrderedDict
 from manimlib.web.utils import (
     animation_to_json,
     wait_to_json,
@@ -31,6 +32,8 @@ class WebScene(Scene):
         self.initial_mobject_dict = {}
         self.render_kwargs = kwargs
 
+        self.mobject_names_to_counts = defaultdict(lambda: 1)
+        self.mobject_ids_to_names = {}
         self.initial_mobject_serializations = {}
         self.current_mobject_serializations = {}
         self.scene_diffs = []
@@ -80,18 +83,23 @@ class WebScene(Scene):
                     self.update_initial_mobject_dict(mobject_list=mob.submobjects, include_self=False)
 
     def compute_diff(self, next_animation=None):
-        new_mobject_serializations = {
-            id(mob): serialize_mobject(mob, added=mob in self.mobjects)
+        new_mobject_serializations = OrderedDict([
+            (id(mob), serialize_mobject(mob, added=mob in self.mobjects))
             for mob in get_mobject_hierarchies_from_scene(self)
-        }
+        ])
         for mob_id in new_mobject_serializations:
             if mob_id not in self.initial_mobject_serializations:
-                # name it
+                self.name_mobject(mob_id, new_mobject_serializations[mob_id]["className"])
                 self.initial_mobject_serializations[mob_id] = copy.deepcopy(new_mobject_serializations[mob_id])
         return self.diff_new_serializations(
             new_mobject_serializations,
             animation_mobjects=get_animated_mobjects(next_animation) if next_animation is not None else None,
         )
+
+    def name_mobject(self, mob_id, class_name):
+        mob_name = f"{class_name}{self.mobject_names_to_counts[class_name]}"
+        self.mobject_ids_to_names[mob_id] = mob_name
+        self.mobject_names_to_counts[class_name] += 1
 
     def diff_new_serializations(self, new_serializations, animation_mobjects=None):
         ret = {}
@@ -101,6 +109,8 @@ class WebScene(Scene):
                 if mob_id not in self.current_mobject_serializations:
                     # This Mobject hasn't been seen before.
                     self.initial_mobject_serializations[mob_id] = serialize_mobject(animation_mobject)
+                    if mob_id not in self.mobject_ids_to_names:
+                        self.name_mobject(mob_id, animation_mobject.__class__.__name__)
                 elif self.current_mobject_serializations[mob_id]["added"] == False:
                     # This Mobject may have been changed offscreen.
                     ret[id(animation_mobject)] = serialize_mobject(animation_mobject)
@@ -130,3 +140,28 @@ class WebScene(Scene):
                     ret[mob_id] = diff
                 self.current_mobject_serializations[mob_id] = copy.deepcopy(new_serializations[mob_id])
         return ret
+
+    def rename_diff(self, diff):
+        return diff
+
+    def rename_diffs(self, diffs):
+        for diff in diffs:
+            self.scene_diffs[self.mobject_ids_to_names[mob_id]] = \
+                self.rename_scene_diff(self.scene_diffs[mob_id])
+            del self.scene_diffs[mob_id]
+
+    def rename_scene_diffs(self):
+        # self.rename_diffs(self.scene_diffs)
+        pass
+
+    def rename_animation_diffs(self):
+        pass
+
+    def rename_animation_info_list(self):
+        pass
+
+    def tear_down(self):
+        self.rename_scene_diffs()
+        self.rename_animation_diffs()
+        self.rename_animation_info_list()
+        return super(WebScene, self).tear_down()

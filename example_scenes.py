@@ -103,6 +103,7 @@ class GroupExample(WebScene):
 class WarpSquare(WebScene):
     def construct(self):
         square = Square()
+        self.add(square)
         self.play(ApplyPointwiseFunction(
             lambda point: complex_to_R3(np.exp(R3_to_complex(point))),
             square
