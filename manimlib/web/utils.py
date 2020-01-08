@@ -102,7 +102,11 @@ def tex_to_points(tex):
         return tex2points(tex)
 
 def serialize_animation(animation):
-    return (animation.__class__.__name__, animation.args, animation.config)
+    return {
+        "className": animation.__class__.__name__,
+        "args": animation.args,
+        "config": animation.config,
+    }
 
 CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED = ["TexMobject", "TextMobject"]
 

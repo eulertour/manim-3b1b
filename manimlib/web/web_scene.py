@@ -174,7 +174,9 @@ class WebScene(Scene):
     def rename_animation_info_list(self):
         new_info = []
         for info in self.animation_info_list:
-            animation_class, args, config = info
+            animation_class = info["className"]
+            args = info["args"]
+            config = info["config"]
             new_args = []
             for arg in args:
                 if arg in self.mobject_ids_to_names:
@@ -187,7 +189,11 @@ class WebScene(Scene):
                     new_config[key] = self.mobject_ids_to_names[val]
                 else:
                     new_config[key] = val
-            new_info.append((animation_class, new_args, new_config))
+            new_info.append({
+                "className": animation_class,
+                "args": new_args,
+                "config": new_config,
+            })
         self.animation_info_list = new_info
 
     def rename_initial_mobject_serializations(self):
