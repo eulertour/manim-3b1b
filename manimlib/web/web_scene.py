@@ -93,6 +93,8 @@ class WebScene(Scene):
             if mob_id not in self.initial_mobject_serializations:
                 self.name_mobject(mob_id, new_mobject_serializations[mob_id]["className"])
                 self.initial_mobject_serializations[mob_id] = copy.deepcopy(new_mobject_serializations[mob_id])
+                # A Mobject must be added by a scene diff or an animation.
+                self.initial_mobject_serializations[mob_id]["added"] = False
         return self.diff_new_serializations(
             new_mobject_serializations,
             animation_mobjects=get_animated_mobjects(next_animation) if next_animation is not None else None,
