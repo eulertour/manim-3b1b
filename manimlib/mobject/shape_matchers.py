@@ -105,6 +105,6 @@ class Underline(Line):
             self.config = serialize_config({
                 **kwargs,
             })
-        super().__init__(LEFT, RIGHT)
+        super().__init__(LEFT, RIGHT, **kwargs)
         self.match_width(mobject)
         self.next_to(mobject, DOWN, buff=self.buff)

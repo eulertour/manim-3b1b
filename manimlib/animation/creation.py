@@ -161,6 +161,10 @@ class ShowIncreasingSubsets(Animation):
 
 
 class ShowSubmobjectsOneByOne(ShowIncreasingSubsets):
+    CONFIG = {
+        "int_func": np.ceil,
+    }
+
     def __init__(self, group, **kwargs):
         if not hasattr(self, "args"):
             self.args = serialize_args([group])
