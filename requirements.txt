@@ -1,2 +1,12 @@
 colour
 numpy
+argparse
+colour
+numpy
+Pillow
+progressbar
+scipy
+tqdm
+opencv-python
+pycairo
+pydub
