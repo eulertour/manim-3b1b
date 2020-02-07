@@ -34,12 +34,22 @@ class WebScene(Scene):
         self.initial_mobject_dict = {}
         self.render_kwargs = kwargs
 
+        # Keep a count of the number of times each class of Mobject has appeared
+        # in the Scene for naming (e.g. Square1, Square2, ...).
         self.mobject_names_to_counts = defaultdict(lambda: 1)
+        # A map of Mobject IDs to human-readable names.
         self.mobject_ids_to_names = {}
+        # A map of Mobject IDs to serializations of the Mobject as it existed
+        # when it was first seen (deprecated).
         self.initial_mobject_serializations = {}
+        # A map of Mobject IDs to serializations of the Mobject as it existed
+        # when it was last diffed.
         self.current_mobject_serializations = {}
+        # A list of Mobject diffs representing changes not made by Animations.
         self.scene_diffs = []
+        # A list of Mobject diffs representing changes made by Animations.
         self.animation_diffs = []
+        # A list of serializations of the Animations that were played.
         self.animation_info_list = []
 
     def render(self):

@@ -117,7 +117,17 @@ class WriteStuff(WebScene):
             "This is a some text",
             tex_to_color_map={"text": YELLOW}
         )
-        self.play(FadeIn(example_text))
+        example_tex = TexMobject(
+            "\sum_{k=1}^\infty {1 \over k^2} = {\pi^2 \over 6}",
+            # "\int_{-\infty}^\infty {e^{x^{-2}}}dx= {\sqrt{\pi}}",
+        )
+        group = VGroup(example_text, example_tex)
+        group.arrange(DOWN)
+        group.set_width(FRAME_WIDTH - 2 * LARGE_BUFF)
+
+        self.play(Write(example_text))
+        self.play(Write(example_tex))
+        self.wait()
 
 
 class UpdatersExample(Scene):

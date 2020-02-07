@@ -22,6 +22,7 @@ from manimlib.utils.simple_functions import get_parameters
 from manimlib.utils.space_ops import angle_of_vector
 from manimlib.utils.space_ops import get_norm
 from manimlib.utils.space_ops import rotation_matrix
+from manimlib.web.utils import serialize_mobject
 
 
 # TODO: Explain array_attrs
@@ -30,6 +31,9 @@ class Mobject(Container):
     """
     Mathematical Object
     """
+    # A dict, shared between all Mobjects, which maps Mobject IDs to
+    # serializations of the Mobject as it existed when it was first created.
+    initial_mobject_serializations = {}
     CONFIG = {
         "color": WHITE,
         "name": None,
