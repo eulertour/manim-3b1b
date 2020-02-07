@@ -22,6 +22,7 @@ from manimlib.mobject.svg.tex_mobject import (
     TextMobject,
     SingleStringTexMobject,
 )
+import manimlib.web.utils
 
 
 class WebScene(Scene):
@@ -57,18 +58,9 @@ class WebScene(Scene):
         return super(WebScene, self).__init__(**self.render_kwargs)
 
     def play(self, *args, **kwargs):
-        animation = args[0]
-        self.animation_info_list.append(serialize_animation(animation))
-        self.scene_diffs.append(self.compute_diff(next_animation=animation))
-
-        if animation.__class__.__name__.startswith("ApplyPointwiseFunction"):
-            self.update_initial_mobject_dict(mobject_list=[animation.mobject])
-        else:
-            self.update_initial_mobject_dict(mobject_list=animation.get_args())
-        self.scenes_before_animation.append(scene_mobjects_to_json(self.mobjects))
-        self.animation_list.append(animation_to_json(args, kwargs))
+        self.animation_info_list.append(serialize_animation(args[0]))
+        self.scene_diffs.append(self.compute_diff())
         super(WebScene, self).play(*args, **kwargs)
-
         self.animation_diffs.append(self.compute_diff())
 
     def wait(self, duration=DEFAULT_WAIT_TIME, stop_condition=None):
@@ -94,7 +86,11 @@ class WebScene(Scene):
                     # handle the submobjects
                     self.update_initial_mobject_dict(mobject_list=mob.submobjects, include_self=False)
 
-    def compute_diff(self, next_animation=None):
+    def compute_diff(self):
+        print(manimlib.web.utils.prior_mobject_serializations)
+        print(manimlib.web.utils.current_mobjects)
+
+    def compute_diff_old(self, next_animation=None):
         new_mobject_serializations = OrderedDict([
             (id(mob), serialize_mobject(mob, added=mob in self.mobjects))
             for mob in get_mobject_hierarchies_from_scene(self)

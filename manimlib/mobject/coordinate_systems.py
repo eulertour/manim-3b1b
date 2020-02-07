@@ -142,12 +142,14 @@ class Axes(VGroup, CoordinateSystem):
     }
 
     def __init__(self, **kwargs):
+        #### EULERTOUR_INIT_START ####
         if not hasattr(self, "args"):
             self.args = serialize_args([])
         if not hasattr(self, "config"):
             self.config = serialize_config({
                 **kwargs,
             })
+        #### EULERTOUR_INIT_START ####
         VGroup.__init__(self, **kwargs)
         self.x_axis = self.create_axis(
             self.x_min, self.x_max, self.x_axis_config
@@ -162,6 +164,8 @@ class Axes(VGroup, CoordinateSystem):
         self.axes = VGroup(self.x_axis, self.y_axis)
         self.add(*self.axes)
         self.shift(self.center_point)
+        #### EULERTOUR_INIT_END ####
+        #### EULERTOUR_INIT_END ####
 
     def create_axis(self, min_val, max_val, axis_config):
         new_config = merge_dicts_recursively(
@@ -225,12 +229,14 @@ class ThreeDAxes(Axes):
     }
 
     def __init__(self, **kwargs):
+        #### EULERTOUR_INIT_START ####
         if not hasattr(self, "args"):
             self.args = serialize_args([])
         if not hasattr(self, "config"):
             self.config = serialize_config({
                 **kwargs,
             })
+        #### EULERTOUR_INIT_START ####
         Axes.__init__(self, **kwargs)
         z_axis = self.z_axis = self.create_axis(
             self.z_min, self.z_max, self.z_axis_config
@@ -245,6 +251,8 @@ class ThreeDAxes(Axes):
 
         self.add_3d_pieces()
         self.set_axis_shading()
+        #### EULERTOUR_INIT_END ####
+        #### EULERTOUR_INIT_END ####
 
     def add_3d_pieces(self):
         for axis in self.axes:
@@ -297,16 +305,20 @@ class NumberPlane(Axes):
     }
 
     def __init__(self, **kwargs):
+        #### EULERTOUR_INIT_START ####
         if not hasattr(self, "args"):
             self.args = serialize_args([])
         if not hasattr(self, "config"):
             self.config = serialize_config({
                 **kwargs,
             })
+        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         kwargs["number_line_config"] = self.axis_config
         Axes.__init__(self, **kwargs)
         self.init_background_lines()
+        #### EULERTOUR_INIT_END ####
+        #### EULERTOUR_INIT_END ####
 
     def init_background_lines(self):
         if self.faded_line_style is None:

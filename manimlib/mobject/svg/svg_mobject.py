@@ -41,6 +41,7 @@ class SVGMobject(VMobject):
     }
 
     def __init__(self, svg_string=None, **kwargs):
+        #### EULERTOUR_INIT_START ####
         if not hasattr(self, "args"):
             self.args = serialize_args([])
         if not hasattr(self, "config"):
@@ -48,11 +49,14 @@ class SVGMobject(VMobject):
                 'svg_string': svg_string,
                 **kwargs,
             })
+        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         self.svg_string = svg_string or self.svg_string
         assert(self.svg_string is not None)
         VMobject.__init__(self, **kwargs)
         self.move_into_position()
+        #### EULERTOUR_INIT_END ####
+        #### EULERTOUR_INIT_END ####
 
     def generate_points(self):
         doc = minidom.parseString(self.svg_string)
@@ -310,6 +314,7 @@ class SVGMobject(VMobject):
 
 class VMobjectFromSVGPathstring(VMobject):
     def __init__(self, path_string, **kwargs):
+        #### EULERTOUR_INIT_START ####
         if not hasattr(self, "args"):
             self.args = serialize_args([path_string])
         if not hasattr(self, "config"):
@@ -320,8 +325,11 @@ class VMobjectFromSVGPathstring(VMobject):
             self.kwargs = { 'path_string': path_string, **kwargs, **self.kwargs }
         else:
             self.kwargs = { 'path_string': path_string, **kwargs }
+        #### EULERTOUR_INIT_START ####
         digest_locals(self)
         VMobject.__init__(self, **kwargs)
+        #### EULERTOUR_INIT_END ####
+        #### EULERTOUR_INIT_END ####
 
     def get_path_commands(self):
         result = [

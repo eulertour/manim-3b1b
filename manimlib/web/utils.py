@@ -9,6 +9,23 @@ if sys.platform == "emscripten":
 else:
     from manimlib.web.web_mock import tex2points
 
+# Maps a given Mobject ID to the serialization of the Mobject as it existed
+# when it was first created.
+initial_mobject_serializations = {}
+# Maps a given Mobject ID to the serialization of the Mobject as it existed
+# at the latter of when it was created and when it was last diffed.
+prior_mobject_serializations = {}
+# Maps a given Mobjects ID to the Mobject itself.
+current_mobjects = {}
+
+def register_mobject(mob):
+    mob_id = id(mob)
+    if mob_id not in current_mobjects:
+        current_mobjects[mob_id] = mob
+    initial_mobject_serializations[mob_id] = serialize_mobject(mob)
+    prior_mobject_serializations[mob_id] = \
+            copy.deepcopy(initial_mobject_serializations[mob_id])
+
 def serialize_arg(arg):
     from manimlib.mobject.mobject import Mobject
     if isinstance(arg, Mobject):

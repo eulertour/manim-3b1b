@@ -31,9 +31,6 @@ class Mobject(Container):
     """
     Mathematical Object
     """
-    # A dict, shared between all Mobjects, which maps Mobject IDs to
-    # serializations of the Mobject as it existed when it was first created.
-    initial_mobject_serializations = {}
     CONFIG = {
         "color": WHITE,
         "name": None,
