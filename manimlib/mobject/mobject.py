@@ -22,7 +22,11 @@ from manimlib.utils.simple_functions import get_parameters
 from manimlib.utils.space_ops import angle_of_vector
 from manimlib.utils.space_ops import get_norm
 from manimlib.utils.space_ops import rotation_matrix
-from manimlib.web.utils import serialize_mobject
+from manimlib.web.utils import (
+    serialize_mobject,
+    register_transformation,
+    register_mobject,
+)
 
 
 # TODO: Explain array_attrs
@@ -39,6 +43,7 @@ class Mobject(Container):
     }
 
     def __init__(self, **kwargs):
+        #### EULERTOUR_INIT_START ####
         if not hasattr(self, "args"):
             self.args = serialize_args([])
         if not hasattr(self, "config"):
@@ -49,6 +54,7 @@ class Mobject(Container):
             self.kwargs = { **kwargs, **self.kwargs }
         else:
             self.kwargs = kwargs
+        #### EULERTOUR_INIT_START ####
         self.transformations = []
         Container.__init__(self, **kwargs)
         self.submobjects = []
@@ -62,6 +68,10 @@ class Mobject(Container):
         self.init_colors()
         if 'template_tex_file_body' in self.kwargs:
             del self.kwargs['template_tex_file_body']
+        #### EULERTOUR_INIT_END ####
+        if "skip_registration" not in kwargs or not kwargs["skip_registration"]:
+            register_mobject(self)
+        #### EULERTOUR_INIT_END ####
 
     def __str__(self):
         return str(self.name)
@@ -245,6 +255,8 @@ class Mobject(Container):
 
     def shift(self, *vectors):
         total_vector = reduce(op.add, vectors)
+        if not np.allclose(total_vector, ORIGIN):
+            register_transformation(id(self), 'shift', total_vector)
         for mob in self.family_members_with_points():
             mob.points = mob.points.astype('float')
             mob.points += total_vector
@@ -378,13 +390,13 @@ class Mobject(Container):
     # above methods
 
     def apply_points_function_about_point(self, func, transform=None, about_point=None, about_edge=None):
+        if transform is not None:
+            register_transformation(id(self), *transform)
         if about_point is None:
             if about_edge is None:
                 about_edge = ORIGIN
             about_point = self.get_critical_point(about_edge)
         for mob in self.get_family():
-            if transform is not None:
-                mob.transformations.append(transform)
             mob.points -= about_point
             mob.points = func(mob.points)
             mob.points += about_point
@@ -1158,6 +1170,7 @@ class Mobject(Container):
 
 class Group(Mobject):
     def __init__(self, *mobjects, **kwargs):
+        #### EULERTOUR_INIT_START ####
         if not hasattr(self, "args"):
             self.args = serialize_args(mobjects)
         if not hasattr(self, "config"):
@@ -1168,7 +1181,11 @@ class Group(Mobject):
             self.kwargs = { **kwargs, **self.kwargs }
         else:
             self.kwargs = kwargs
+        #### EULERTOUR_INIT_START ####
         if not all([isinstance(m, Mobject) for m in mobjects]):
             raise Exception("All submobjects must be of type Mobject")
         Mobject.__init__(self, **kwargs)
         self.add(*mobjects)
+        #### EULERTOUR_INIT_END ####
+        register_mobject(self)
+        #### EULERTOUR_INIT_END ####

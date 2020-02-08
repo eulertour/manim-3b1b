@@ -18,6 +18,7 @@ from manimlib.utils.space_ops import line_intersection
 from manimlib.utils.space_ops import get_norm
 from manimlib.utils.space_ops import normalize
 from manimlib.utils.space_ops import rotate_vector
+from manimlib.web.utils import register_mobject
 
 
 DEFAULT_DOT_RADIUS = 0.08
@@ -226,6 +227,7 @@ class Arc(TipableVMobject):
         self.angle = angle
         VMobject.__init__(self, **kwargs)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
     def generate_points(self):
@@ -310,6 +312,7 @@ class ArcBetweenPoints(Arc):
             self.set_points_as_corners([LEFT, RIGHT])
         self.put_start_and_end_on(start, end)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -326,6 +329,7 @@ class CurvedArrow(ArcBetweenPoints):
         ArcBetweenPoints.__init__(self, start_point, end_point, **kwargs)
         self.add_tip()
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -344,6 +348,7 @@ class CurvedDoubleArrow(CurvedArrow):
         )
         self.add_tip(at_start=True)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -369,6 +374,7 @@ class Circle(Arc):
         #### EULERTOUR_INIT_START ####
         Arc.__init__(self, 0, TAU, **kwargs)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
     def surround(self, mobject, dim_to_match=0, stretch=False, buffer_factor=1.2):
@@ -413,6 +419,7 @@ class Dot(Circle):
         #### EULERTOUR_INIT_START ####
         Circle.__init__(self, arc_center=point, **kwargs)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -441,6 +448,7 @@ class Ellipse(Circle):
         self.set_width(self.width, stretch=True)
         self.set_height(self.height, stretch=True)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -520,6 +528,7 @@ class Line(TipableVMobject):
         self.set_start_and_end_attrs(start, end)
         VMobject.__init__(self, **kwargs)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
     def generate_points(self):
@@ -643,6 +652,7 @@ class DashedLine(Line):
         self.clear_points()
         self.add(*dashes)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
     def calculate_num_dashes(self, positive_space_ratio):
@@ -705,6 +715,7 @@ class TangentLine(Line):
         )
         self.scale(self.length / self.get_length())
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -728,6 +739,7 @@ class Elbow(VMobject):
         self.set_width(self.width, about_point=ORIGIN)
         self.rotate(self.angle, about_point=ORIGIN)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -756,6 +768,7 @@ class Arrow(Line):
         self.add_tip()
         self.set_stroke_width_from_length()
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
     def scale(self, factor, **kwargs):
@@ -835,6 +848,7 @@ class Vector(Arrow):
             direction = np.append(np.array(direction), 0)
         Arrow.__init__(self, ORIGIN, direction, **kwargs)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -851,6 +865,7 @@ class DoubleArrow(Arrow):
         Arrow.__init__(self, *args, **kwargs)
         self.add_tip(at_start=True)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -867,6 +882,7 @@ class CubicBezier(VMobject):
         VMobject.__init__(self, **kwargs)
         self.set_points(points)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -889,6 +905,7 @@ class Polygon(VMobject):
             [*vertices, vertices[0]]
         )
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
     def get_vertices(self):
@@ -956,6 +973,7 @@ class RegularPolygon(Polygon):
         vertices = compass_directions(n, start_vect)
         Polygon.__init__(self, *vertices, **kwargs)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -971,6 +989,7 @@ class Triangle(RegularPolygon):
         #### EULERTOUR_INIT_START ####
         RegularPolygon.__init__(self, n=3, **kwargs)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -995,6 +1014,7 @@ class ArrowTip(Triangle):
         self.set_width(self.length)
         self.set_height(self.length, stretch=True)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
     def get_base(self):
@@ -1035,6 +1055,7 @@ class Rectangle(Polygon):
         self.set_width(self.width, stretch=True, add_transform=False)
         self.set_height(self.height, stretch=True, add_transform=False)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -1064,6 +1085,7 @@ class Square(Rectangle):
             **kwargs
         )
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####
 
 
@@ -1084,4 +1106,5 @@ class RoundedRectangle(Rectangle):
         Rectangle.__init__(self, **kwargs)
         self.round_corners(self.corner_radius)
         #### EULERTOUR_INIT_END ####
+        register_mobject(self)
         #### EULERTOUR_INIT_END ####

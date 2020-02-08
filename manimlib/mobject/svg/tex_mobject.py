@@ -71,7 +71,7 @@ class SingleStringTexMobject(SVGMobject):
         path_data = tex_to_points(full_string)
         for point_list in path_data:
             if point_list:
-                vmob = VMobject()
+                vmob = VMobject(skip_registration=True)
                 vmob.append_points(point_list)
                 self.add(vmob)
 
@@ -179,7 +179,8 @@ class TexMobject(SingleStringTexMobject):
         tex_strings = self.break_up_tex_strings(tex_strings)
         self.tex_strings = tex_strings
         SingleStringTexMobject.__init__(
-            self, self.arg_separator.join(tex_strings), **kwargs
+            self, self.arg_separator.join(tex_strings),
+            skip_registration=True, **kwargs
         )
         self.break_up_by_substrings()
         self.set_color_by_tex_to_color_map(self.tex_to_color_map)
@@ -219,7 +220,7 @@ class TexMobject(SingleStringTexMobject):
         config = dict(self.CONFIG)
         config["alignment"] = ""
         for tex_string in self.tex_strings:
-            sub_tex_mob = SingleStringTexMobject(tex_string, **config)
+            sub_tex_mob = SingleStringTexMobject(tex_string, skip_registration=True, **config)
             num_submobs = len(sub_tex_mob.submobjects)
             new_index = curr_index + num_submobs
             if num_submobs == 0:
@@ -246,7 +247,7 @@ class TexMobject(SingleStringTexMobject):
             else:
                 return tex1 == tex2
 
-        return VGroup(*[m for m in self.submobjects if test(tex, m.get_tex_string())])
+        return VGroup(*[m for m in self.submobjects if test(tex, m.get_tex_string())], skip_registration=True)
 
     def get_part_by_tex(self, tex, **kwargs):
         all_parts = self.get_parts_by_tex(tex, **kwargs)

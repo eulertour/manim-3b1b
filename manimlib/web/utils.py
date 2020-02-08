@@ -10,6 +10,9 @@ else:
     from manimlib.web.web_mock import tex2points
 from collections import defaultdict
 
+# String used in place of the Mobject ID for Mobjects that weren't created by
+# the user.
+UNKNOWN_MOBJECT = "<unknown_mobject>"
 # Maps a given Mobject ID to the serialization of the Mobject as it existed
 # when it was first created.
 initial_mobject_serializations = {}
@@ -23,6 +26,22 @@ current_mobjects = {}
 mobject_class_counts = defaultdict(lambda: 1)
 # Maps a given Mobject ID to a human-readable name for that Mobject.
 mobject_ids_to_names = {}
+# List of transformations applied to Mobjects in the order they are applied.
+transformation_list = []
+next_unserialized_transformation_index = 0
+
+def get_unserialized_transformations():
+    global next_unserialized_transformation_index
+    ret = transformation_list[next_unserialized_transformation_index:]
+    next_unserialized_transformation_index = len(transformation_list)
+    return ret
+
+def register_transformation(mob_id, *transformation):
+    transformation_list.append((
+        len(transformation_list),
+        mob_id,
+        *transformation,
+    ))
 
 def register_mobject(mob):
     mob_id = id(mob)
@@ -36,7 +55,6 @@ def register_mobject(mob):
 
 
 def name_mobject(mob_id, class_name):
-    print(mob_id, class_name)
     mob_name = f"{class_name}{mobject_class_counts[class_name]}"
     mobject_ids_to_names[mob_id] = mob_name
     mobject_class_counts[class_name] += 1
@@ -68,8 +86,15 @@ def rename_diff(diff):
     if "submobjects" in new_diff and new_diff["submobjects"]:
         starting_submobjects, ending_submobjects = new_diff["submobjects"]
         new_starting_submobjects = list(map(lambda submob_id: mobject_ids_to_names[submob_id], starting_submobjects))
-        new_ending_submobjects = list(map(lambda submob_id: mobject_ids_to_names[submob_id], ending_submobjects))
-        new_diff["submobjects"] = (new_starting_submobjects, new_ending_submobjects)
+        new_ending_submobjects = []
+        for submob_id in ending_submobjects:
+            if submob_id in mobject_ids_to_names:
+                new_ending_submobjects.append(mobject_ids_to_names[submob_id])
+            else:
+                # The Mobject contains a submobject that wasn't created by the
+                # user (e.g. it was created in Mobject.align_submobjects).
+                new_ending_submobjects.append(UNKNOWN_MOBJECT)
+            new_diff["submobjects"] = (new_starting_submobjects, new_ending_submobjects)
     if "args" in new_diff and new_diff["args"]:
         new_diff["args"] = list(map(lambda submob_id: mobject_ids_to_names[submob_id], new_diff["args"]))
     return new_diff
@@ -79,8 +104,35 @@ def rename_diffs(diffs):
     new_diffs = []
     for diff in diffs:
         new_diff = {}
-        for mob_id in diff:
-            new_diff[mobject_ids_to_names[mob_id]] = rename_diff(diff[mob_id])
+        for attr in diff:
+            if isinstance(attr, int):
+                # This is a Mobject ID.
+                new_diff[mobject_ids_to_names[attr]] = rename_diff(diff[attr])
+            elif attr == "transformations":
+                # This is the transformation list. Transformations have the form
+                # (index, mob_id, *params)
+                new_transformations = []
+                for transformation in diff[attr]:
+                    if transformation[1] in mobject_ids_to_names:
+                        new_transformations.append((
+                            transformation[0],
+                            mobject_ids_to_names[transformation[1]],
+                            *transformation[2:],
+                        ))
+                    else:
+                        # Serialized the transformation of a Mobject that wasn't
+                        # created by the user (e.g. from ApplyPointwiseFunction
+                        # where a target Mobject is created and transformed
+                        # internally).
+                        new_transformations.append((
+                            transformation[0],
+                            UNKNOWN_MOBJECT,
+                            *transformation[2:],
+                        ))
+                if new_transformations:
+                    new_diff["transformations"] = new_transformations
+            else:
+                print(f"Unknown diff attribute {attr}")
         new_diffs.append(new_diff)
     return new_diffs
 
@@ -210,7 +262,17 @@ def serialize_animation(animation):
         "config": animation.config,
     }
 
-CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED = ["TexMobject", "TextMobject"]
+def serialize_wait(duration, stop_condition):
+    return {
+        "className": "Wait",
+        "args": [],
+        "config": {
+            "duration": duration,
+            "stop_condition": stop_condition,
+        },
+    }
+
+CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED = ["TexMobject", "TextMobject", "SingleStringTexMobject"]
 
 def serialize_mobject(mob, added=False):
     from manimlib.mobject.mobject import Group, Mobject
@@ -220,15 +282,21 @@ def serialize_mobject(mob, added=False):
         "className": class_name,
         "args": copy.deepcopy(mob.args),
         "config": copy.deepcopy(mob.config),
-        "transformations": copy.deepcopy(mob.transformations),
         "added": added,
     }
     if class_name not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED:
         ret["submobjects"] = [id(mob) for mob in mob.submobjects]
     if isinstance(mob, VMobject):
-        ret["position"] = mob.get_center()
+        # ret["position"] = mob.get_center()
         ret["style"] = get_mobject_style(mob)
     return ret
+
+
+# ('shift', vector)
+def shift_transforms_equal(shift1, shift2):
+    assert(shift1[0] == 'shift')
+    assert(shift2[0] == 'shift')
+    return np.allclose(shift1[1], shift2[1])
 
 # ('rotate', angle, axis)
 def rotate_transforms_equal(rotate1, rotate2):
@@ -254,8 +322,10 @@ def transforms_equal(transform1, transform2):
         return rotate_transforms_equal(transform1, transform2)
     elif command1 == "scale":
         return scale_transforms_equal(transform1, transform2)
+    elif command1 == "shift":
+        return shift_transforms_equal(transform1, transform2)
     else:
-        print(f"There is no implementation of {command1}_transforms_equal()")
+        print(f"Failed to determine if {transform1} and {transform2} are equivalent transformations")
 
 def transform_lists_equal(starting_transforms, ending_transforms):
     if len(starting_transforms) != len(ending_transforms):
@@ -284,27 +354,6 @@ def mobject_serialization_diff(starting_serialization, ending_serialization):
             if starting_attr != ending_attr:
                 ret[attr] = (starting_attr, ending_attr)
     return ret
-
-def get_submobjects_for_serialization(mob):
-    Q = collections.deque()
-    Q.append(mob)
-    ret = []
-    while Q:
-        parent = Q.pop()
-        ret.append(parent)
-        if parent.__class__.__name__ not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED:
-            for child in parent.submobjects:
-                Q.append(child)
-    return list(ret)
-
-def get_mobject_hierarchies_from_mobject_list(mobs):
-    recursive_mobjects_in_scene_map = map(lambda mob: get_submobjects_for_serialization(mob), mobs)
-    recursive_mobjects_in_scene = it.chain(*[list(m) for m in recursive_mobjects_in_scene_map])
-    return recursive_mobjects_in_scene
-
-def get_mobject_hierarchies_from_scene(scene):
-    return get_mobject_hierarchies_from_mobject_list(scene.mobjects)
-
 
 def get_animated_mobjects(animation):
     ret = [animation.mobject]
