@@ -26,10 +26,6 @@ def main():
     pp.pprint(scene.animation_info_list)
     print()
 
-    print("scene.mobject_ids_to_names")
-    pp.pprint(scene.mobject_ids_to_names)
-    print()
-
     # pp.pprint(scene.scenes_before_animation)
     # pp.pprint(scene.animation_list)
     # pp.pprint(scene.initial_mobject_dict)

@@ -87,8 +87,18 @@ class WebScene(Scene):
                     self.update_initial_mobject_dict(mobject_list=mob.submobjects, include_self=False)
 
     def compute_diff(self):
-        print(manimlib.web.utils.prior_mobject_serializations)
-        print(manimlib.web.utils.current_mobjects)
+        ret = {}
+        for mob_id, mob in manimlib.web.utils.current_mobjects.items():
+            prior_serialization = manimlib.web.utils.prior_mobject_serializations[mob_id]
+            current_serialization = serialize_mobject(mob, added=mob in self.mobjects)
+            diff = mobject_serialization_diff(
+                prior_serialization,
+                current_serialization,
+            )
+            if diff:
+                ret[mob_id] = diff
+            manimlib.web.utils.prior_mobject_serializations[mob_id] = current_serialization
+        return ret
 
     def compute_diff_old(self, next_animation=None):
         new_mobject_serializations = OrderedDict([
@@ -160,8 +170,6 @@ class WebScene(Scene):
     def rename_diff(self, diff):
         new_diff = copy.deepcopy(diff)
         if "submobjects" in new_diff and new_diff["submobjects"]:
-            print(diff)
-            print(new_diff)
             starting_submobjects, ending_submobjects = new_diff["submobjects"]
             new_starting_submobjects = list(map(lambda submob_id: self.mobject_ids_to_names[submob_id], starting_submobjects))
             new_ending_submobjects = list(map(lambda submob_id: self.mobject_ids_to_names[submob_id], ending_submobjects))
@@ -204,9 +212,9 @@ class WebScene(Scene):
             })
         self.animation_info_list = new_info
 
-    def rename_initial_mobject_serializations(self):
+    def rename_initial_mobject_serializations_old(self):
         new_mobject_dict = {}
-        for mob_id in self.initial_mobject_serializations:
+        for mob_id in manimlib.web.utils.initial_mobject_serializations:
             new_serialization = self.initial_mobject_serializations[mob_id]
             if "submobjects" in new_serialization:
                 new_serialization["submobjects"] = list(map(lambda submob_id: self.mobject_ids_to_names[submob_id], new_serialization["submobjects"]))
@@ -219,11 +227,12 @@ class WebScene(Scene):
                         new_args.append(arg)
                 new_serialization["args"] = new_args
             new_mobject_dict[self.mobject_ids_to_names[mob_id]] = new_serialization
-        self.initial_mobject_serializations = new_mobject_dict
+        manimlib.web.utils.initial_mobject_serializations = new_mobject_dict
 
     def tear_down(self):
-        self.rename_initial_mobject_serializations()
-        self.scene_diffs = self.rename_diffs(self.scene_diffs)
-        self.animation_diffs = self.rename_diffs(self.animation_diffs)
-        self.rename_animation_info_list()
+        self.initial_mobject_serializations = \
+                manimlib.web.utils.rename_initial_mobject_serializations()
+        self.scene_diffs = manimlib.web.utils.rename_diffs(self.scene_diffs)
+        self.animation_diffs = manimlib.web.utils.rename_diffs(self.animation_diffs)
+        self.animation_info_list = manimlib.web.utils.rename_animation_info_list(self.animation_info_list)
         return super(WebScene, self).tear_down()

@@ -8,6 +8,7 @@ if sys.platform == "emscripten":
     import pyodide
 else:
     from manimlib.web.web_mock import tex2points
+from collections import defaultdict
 
 # Maps a given Mobject ID to the serialization of the Mobject as it existed
 # when it was first created.
@@ -17,14 +18,98 @@ initial_mobject_serializations = {}
 prior_mobject_serializations = {}
 # Maps a given Mobjects ID to the Mobject itself.
 current_mobjects = {}
+# Maps a given Mobject class to the number of Mobjects of that class that have
+# been created.
+mobject_class_counts = defaultdict(lambda: 1)
+# Maps a given Mobject ID to a human-readable name for that Mobject.
+mobject_ids_to_names = {}
 
 def register_mobject(mob):
     mob_id = id(mob)
     if mob_id not in current_mobjects:
         current_mobjects[mob_id] = mob
+        name_mobject(mob_id, mob.__class__.__name__)
+
     initial_mobject_serializations[mob_id] = serialize_mobject(mob)
     prior_mobject_serializations[mob_id] = \
             copy.deepcopy(initial_mobject_serializations[mob_id])
+
+
+def name_mobject(mob_id, class_name):
+    print(mob_id, class_name)
+    mob_name = f"{class_name}{mobject_class_counts[class_name]}"
+    mobject_ids_to_names[mob_id] = mob_name
+    mobject_class_counts[class_name] += 1
+
+
+def rename_initial_mobject_serializations():
+    new_mobject_dict = {}
+    for mob_id in initial_mobject_serializations:
+        new_serialization = initial_mobject_serializations[mob_id]
+        if "submobjects" in new_serialization:
+            new_serialization["submobjects"] = list(map(
+                lambda submob_id: mobject_ids_to_names[submob_id],
+                new_serialization["submobjects"],
+            ))
+        if "args" in new_serialization:
+            new_args = []
+            for arg in new_serialization["args"]:
+                if arg in mobject_ids_to_names:
+                    new_args.append(mobject_ids_to_names[arg])
+                else:
+                    new_args.append(arg)
+            new_serialization["args"] = new_args
+        new_mobject_dict[mobject_ids_to_names[mob_id]] = new_serialization
+    return new_mobject_dict
+
+
+def rename_diff(diff):
+    new_diff = copy.deepcopy(diff)
+    if "submobjects" in new_diff and new_diff["submobjects"]:
+        starting_submobjects, ending_submobjects = new_diff["submobjects"]
+        new_starting_submobjects = list(map(lambda submob_id: mobject_ids_to_names[submob_id], starting_submobjects))
+        new_ending_submobjects = list(map(lambda submob_id: mobject_ids_to_names[submob_id], ending_submobjects))
+        new_diff["submobjects"] = (new_starting_submobjects, new_ending_submobjects)
+    if "args" in new_diff and new_diff["args"]:
+        new_diff["args"] = list(map(lambda submob_id: mobject_ids_to_names[submob_id], new_diff["args"]))
+    return new_diff
+
+
+def rename_diffs(diffs):
+    new_diffs = []
+    for diff in diffs:
+        new_diff = {}
+        for mob_id in diff:
+            new_diff[mobject_ids_to_names[mob_id]] = rename_diff(diff[mob_id])
+        new_diffs.append(new_diff)
+    return new_diffs
+
+
+def rename_animation_info_list(animation_info_list):
+    new_info = []
+    for info in animation_info_list:
+        animation_class = info["className"]
+        args = info["args"]
+        config = info["config"]
+        new_args = []
+        for arg in args:
+            if arg in mobject_ids_to_names:
+                new_args.append(mobject_ids_to_names[arg])
+            else:
+                new_args.append(arg)
+        new_config = {}
+        for key, val in config.items():
+            if val in mobject_ids_to_names:
+                new_config[key] = mobject_ids_to_names[val]
+            else:
+                new_config[key] = val
+        new_info.append({
+            "className": animation_class,
+            "args": new_args,
+            "config": new_config,
+        })
+    return new_info
+
 
 def serialize_arg(arg):
     from manimlib.mobject.mobject import Mobject
@@ -148,21 +233,29 @@ def serialize_mobject(mob, added=False):
 # ('rotate', angle, axis)
 def rotate_transforms_equal(rotate1, rotate2):
     assert(rotate1[0] == 'rotate')
-    assert(rotate1[0] == rotate2[0])
+    assert(rotate1[0] == 'rotate')
     if rotate1[1] != rotate2[1]:
         return False
     if not np.array_equal(rotate1[2], rotate2[2]):
         return False
     return True
 
+# ('scale', factor)
+def scale_transforms_equal(scale1, scale2):
+    assert(scale1[0] == 'scale')
+    assert(scale2[0] == 'scale')
+    return scale2[1] == scale2[1]
+
 def transforms_equal(transform1, transform2):
     command1, command2 = transform1[0], transform2[0]
     if command1 != command2:
         return False
-    if command1 == "rotate":
+    elif command1 == "rotate":
         return rotate_transforms_equal(transform1, transform2)
+    elif command1 == "scale":
+        return scale_transforms_equal(transform1, transform2)
     else:
-        print(f"Unknown transformation {command1}")
+        print(f"There is no implementation of {command1}_transforms_equal()")
 
 def transform_lists_equal(starting_transforms, ending_transforms):
     if len(starting_transforms) != len(ending_transforms):
