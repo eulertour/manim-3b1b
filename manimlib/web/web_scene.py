@@ -53,6 +53,7 @@ class WebScene(Scene):
 
     def compute_diff(self):
         ret = {}
+        mobject_diffs = {}
         for mob_id, mob in manimlib.web.utils.current_mobjects.items():
             prior_serialization = manimlib.web.utils.prior_mobject_serializations[mob_id]
             current_serialization = serialize_mobject(mob, added=mob in self.mobjects)
@@ -61,8 +62,10 @@ class WebScene(Scene):
                 current_serialization,
             )
             if diff:
-                ret[mob_id] = diff
+                mobject_diffs[mob_id] = diff
             manimlib.web.utils.prior_mobject_serializations[mob_id] = current_serialization
+        if mobject_diffs:
+            ret["mobjects"] = mobject_diffs
         ret["transformations"] = get_unserialized_transformations()
         return ret
 

@@ -105,9 +105,10 @@ def rename_diffs(diffs):
     for diff in diffs:
         new_diff = {}
         for attr in diff:
-            if isinstance(attr, int):
-                # This is a Mobject ID.
-                new_diff[mobject_ids_to_names[attr]] = rename_diff(diff[attr])
+            if attr == "mobjects":
+                new_diff["mobjects"] = {}
+                for mob_id in diff["mobjects"]:
+                    new_diff["mobjects"][mobject_ids_to_names[mob_id]] = rename_diff(diff["mobjects"][mob_id])
             elif attr == "transformations":
                 # This is the transformation list. Transformations have the form
                 # (index, mob_id, *params)
