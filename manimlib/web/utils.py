@@ -30,6 +30,15 @@ mobject_ids_to_names = {}
 transformation_list = []
 next_unserialized_transformation_index = 0
 
+def reset_data():
+    initial_mobject_serializations = {}
+    prior_mobject_serializations = {}
+    current_mobjects = {}
+    mobject_class_counts = defaultdict(lambda: 1)
+    mobject_ids_to_names = {}
+    transformation_list = []
+    next_unserialized_transformation_index = 0
+
 def get_unserialized_transformations():
     global next_unserialized_transformation_index
     ret = transformation_list[next_unserialized_transformation_index:]

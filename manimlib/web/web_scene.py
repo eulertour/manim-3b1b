@@ -10,6 +10,7 @@ from manimlib.web.utils import (
     mobject_serialization_diff,
     get_animated_mobjects,
     get_unserialized_transformations,
+    reset_data,
 )
 from manimlib.mobject.mobject import Mobject, Group
 from manimlib.mobject.svg.tex_mobject import (
@@ -30,6 +31,7 @@ class WebScene(Scene):
         self.animation_diffs = []
         # A list of serializations of the Animations that were played.
         self.animation_info_list = []
+        reset_data()
 
     def render(self):
         # Regular Scenes render upon instantiation.
