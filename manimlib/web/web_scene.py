@@ -4,10 +4,6 @@ import copy
 import itertools as it
 from collections import defaultdict, OrderedDict
 from manimlib.web.utils import (
-    animation_to_json,
-    wait_to_json,
-    scene_mobjects_to_json,
-    mobject_to_json,
     serialize_mobject,
     serialize_animation,
     serialize_wait,
