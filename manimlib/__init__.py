@@ -10,7 +10,7 @@ from manimlib.extract_scene import (
 
 def get_scene(code, scene_names):
     module = manimlib.config.get_module(code)
-    config = {  
+    config = {
         'scene_names': scene_names,
         'open_video_upon_completion' : True,
         'show_file_in_finder' : False,
@@ -23,12 +23,12 @@ def get_scene(code, scene_names):
         'video_output_dir' : None,
         'tex_dir' : None,
         'scene_kwargs' : {
-            'camera_config' : {  
+            'camera_config' : {
                'pixel_height' : 480,
                'pixel_width' : 854,
                'frame_rate' : 15
             },
-            'file_writer_config' : {  
+            'file_writer_config' : {
                'write_to_movie' : True,
                'save_last_frame' : False,
                'save_pngs' : False,

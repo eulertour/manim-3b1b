@@ -31,6 +31,14 @@ transformation_list = []
 next_unserialized_transformation_index = 0
 
 def reset_data():
+    global \
+        initial_mobject_serializations, \
+        prior_mobject_serializations, \
+        current_mobjects, \
+        mobject_class_counts, \
+        mobject_ids_to_names, \
+        transformation_list, \
+        next_unserialized_transformation_index
     initial_mobject_serializations = {}
     prior_mobject_serializations = {}
     current_mobjects = {}
