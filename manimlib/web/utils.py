@@ -10,6 +10,9 @@ else:
     from manimlib.web.web_mock import tex2points
 from collections import defaultdict
 
+# Format string used in place of the Mobject ID for Mobjects that were copied
+# from one the user created.
+COPIED_MOBJECT_FORMAT = "<copy of {}>"
 # String used in place of the Mobject ID for Mobjects that weren't created by
 # the user.
 UNKNOWN_MOBJECT = "<unknown_mobject>"
@@ -53,10 +56,14 @@ def get_unserialized_transformations():
     next_unserialized_transformation_index = len(transformation_list)
     return ret
 
-def register_transformation(mob_id, *transformation):
+def register_transformation(mob, *transformation):
+    if hasattr(mob, "original"):
+        id_or_ids = [id(mob.original), id(mob)]
+    else:
+        id_or_ids = id(mob)
     transformation_list.append((
         len(transformation_list),
-        mob_id,
+        id_or_ids,
         *transformation,
     ))
 
@@ -128,20 +135,26 @@ def rename_diffs(diffs):
                     new_diff["mobjects"][mobject_ids_to_names[mob_id]] = rename_diff(diff["mobjects"][mob_id])
             elif attr == "transformations":
                 # This is the transformation list. Transformations have the form
-                # (index, mob_id, *params)
+                # (index, mob_id, *params) before renaming.
                 new_transformations = []
                 for transformation in diff[attr]:
-                    if transformation[1] in mobject_ids_to_names:
+                    copied = type(transformation[1]) == list
+                    if copied:
+                        mob_id = transformation[1][0]
+                        mob_name = COPIED_MOBJECT_FORMAT.format(mobject_ids_to_names[mob_id])
+                    else:
+                        mob_id = transformation[1]
+                        mob_name = mobject_ids_to_names[mob_id]
+                    if mob_id in mobject_ids_to_names:
                         new_transformations.append((
                             transformation[0],
-                            mobject_ids_to_names[transformation[1]],
+                            mob_name,
                             *transformation[2:],
                         ))
                     else:
-                        # Serialized the transformation of a Mobject that wasn't
-                        # created by the user (e.g. from ApplyPointwiseFunction
-                        # where a target Mobject is created and transformed
-                        # internally).
+                        # The scene serialized the transformation of a Mobject
+                        # that was neither created by nor copied from the user
+                        # (e.g.  a copy of a copy).
                         new_transformations.append((
                             transformation[0],
                             UNKNOWN_MOBJECT,

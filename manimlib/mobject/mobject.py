@@ -144,6 +144,7 @@ class Mobject(Container):
         # return self.deepcopy()
 
         copy_mobject = copy.copy(self)
+        copy_mobject.original = self
         copy_mobject.points = np.array(self.points)
         copy_mobject.submobjects = [
             submob.copy() for submob in self.submobjects
@@ -256,7 +257,7 @@ class Mobject(Container):
     def shift(self, *vectors):
         total_vector = reduce(op.add, vectors)
         if not np.allclose(total_vector, ORIGIN):
-            register_transformation(id(self), 'shift', total_vector)
+            register_transformation(self, 'shift', total_vector)
         for mob in self.family_members_with_points():
             mob.points = mob.points.astype('float')
             mob.points += total_vector
@@ -391,7 +392,7 @@ class Mobject(Container):
 
     def apply_points_function_about_point(self, func, transform=None, about_point=None, about_edge=None):
         if transform is not None:
-            register_transformation(id(self), *transform)
+            register_transformation(self, *transform)
         if about_point is None:
             if about_edge is None:
                 about_edge = ORIGIN

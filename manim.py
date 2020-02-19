@@ -4,7 +4,7 @@ import pprint
 import sys
 
 def main():
-    with open("example_scenes.py", "r") as f:
+    with open(sys.argv[1], "r") as f:
         code = f.read()
     scene = get_scene(code, [sys.argv[2]])
     scene.render()
