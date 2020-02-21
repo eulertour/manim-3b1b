@@ -11,6 +11,7 @@ from manimlib.web.utils import (
     get_animated_mobjects,
     get_unserialized_transformations,
     reset_data,
+    diff_list_contains_mobject_name,
 )
 from manimlib.mobject.mobject import Mobject, Group
 from manimlib.mobject.svg.tex_mobject import (
@@ -67,10 +68,24 @@ class WebScene(Scene):
         ret["transformations"] = get_unserialized_transformations()
         return ret
 
+    """
+    Filters Mobjects that are neither transformed nor added to the Scene from
+    self.initial_mobject_serializations.
+    """
+    def filter_initial_mobject_serializations(self):
+        to_delete = []
+        for mobject_name in self.initial_mobject_serializations.keys():
+            if not diff_list_contains_mobject_name(self.scene_diffs, mobject_name) and \
+                    not diff_list_contains_mobject_name(self.animation_diffs, mobject_name):
+                to_delete.append(mobject_name)
+        for mobject_name in to_delete:
+            del self.initial_mobject_serializations[mobject_name]
+
     def tear_down(self):
         self.initial_mobject_serializations = \
                 manimlib.web.utils.rename_initial_mobject_serializations()
         self.scene_diffs = manimlib.web.utils.rename_diffs(self.scene_diffs)
         self.animation_diffs = manimlib.web.utils.rename_diffs(self.animation_diffs)
+        self.filter_initial_mobject_serializations();
         self.animation_info_list = manimlib.web.utils.rename_animation_info_list(self.animation_info_list)
         return super(WebScene, self).tear_down()

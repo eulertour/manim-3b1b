@@ -27,6 +27,9 @@ current_mobjects = {}
 # Maps a given Mobject class to the number of Mobjects of that class that have
 # been created.
 mobject_class_counts = defaultdict(lambda: 1)
+# Maps a given Mobject name to the number of copies of that Mobject that have
+# been created.
+mobject_name_copy_counts = defaultdict(lambda: 1)
 # Maps a given Mobject ID to a human-readable name for that Mobject.
 mobject_ids_to_names = {}
 # List of transformations applied to Mobjects in the order they are applied.
@@ -57,31 +60,33 @@ def get_unserialized_transformations():
     return ret
 
 def register_transformation(mob, *transformation):
-    if hasattr(mob, "original"):
-        id_or_ids = [id(mob.original), id(mob)]
-    else:
-        id_or_ids = id(mob)
     transformation_list.append((
         len(transformation_list),
-        id_or_ids,
+        id(mob),
         *transformation,
     ))
 
-def register_mobject(mob):
+def register_mobject(mob, registration_tag=""):
     mob_id = id(mob)
     if mob_id not in current_mobjects:
         current_mobjects[mob_id] = mob
-        name_mobject(mob_id, mob.__class__.__name__)
+        name_mobject(mob, mob.__class__.__name__, registration_tag=registration_tag)
 
     initial_mobject_serializations[mob_id] = serialize_mobject(mob)
     prior_mobject_serializations[mob_id] = \
             copy.deepcopy(initial_mobject_serializations[mob_id])
 
 
-def name_mobject(mob_id, class_name):
-    mob_name = f"{class_name}{mobject_class_counts[class_name]}"
-    mobject_ids_to_names[mob_id] = mob_name
-    mobject_class_counts[class_name] += 1
+def name_mobject(mob, class_name, registration_tag=""):
+    if hasattr(mob, "original"):
+        original_mob_name = mobject_ids_to_names[id(mob.original)]
+        tagged_name = original_mob_name + f"{registration_tag}"
+        mob_name = tagged_name + f"Copy{mobject_name_copy_counts[tagged_name]}"
+        mobject_name_copy_counts[tagged_name] += 1
+    else:
+        mob_name = f"{class_name}{mobject_class_counts[class_name]}"
+        mobject_class_counts[class_name] += 1
+    mobject_ids_to_names[id(mob)] = mob_name
 
 
 def rename_initial_mobject_serializations():
@@ -138,13 +143,8 @@ def rename_diffs(diffs):
                 # (index, mob_id, *params) before renaming.
                 new_transformations = []
                 for transformation in diff[attr]:
-                    copied = type(transformation[1]) == list
-                    if copied:
-                        mob_id = transformation[1][0]
-                        mob_name = COPIED_MOBJECT_FORMAT.format(mobject_ids_to_names[mob_id])
-                    else:
-                        mob_id = transformation[1]
-                        mob_name = mobject_ids_to_names[mob_id]
+                    mob_id = transformation[1]
+                    mob_name = mobject_ids_to_names[mob_id]
                     if mob_id in mobject_ids_to_names:
                         new_transformations.append((
                             transformation[0],
@@ -341,3 +341,13 @@ def get_animated_mobjects(animation):
     if isinstance(animation, Transform) and animation.target_mobject is not None:
         ret.append(animation.target_mobject)
     return ret
+
+def diff_list_contains_mobject_name(diff_list, mobject_name):
+    return any(diff_contains_mobject_name(diff, mobject_name) for diff in diff_list)
+
+def diff_contains_mobject_name(diff, mobject_name):
+    if 'mobjects' in diff and mobject_name in diff['mobjects'].keys():
+        return True
+    if 'transformations' in diff and mobject_name in map(lambda t: t[1], diff['transformations']):
+        return True
+    return False

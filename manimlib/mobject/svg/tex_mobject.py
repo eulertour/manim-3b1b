@@ -182,6 +182,7 @@ class TexMobject(SingleStringTexMobject):
             self, self.arg_separator.join(tex_strings),
             skip_registration=True, **kwargs
         )
+        self.skip_registration = False
         self.break_up_by_substrings()
         self.set_color_by_tex_to_color_map(self.tex_to_color_map)
 
