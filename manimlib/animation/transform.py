@@ -54,7 +54,7 @@ class Transform(Animation):
         # Use a copy of target_mobject for the align_data
         # call so that the actual target_mobject stays
         # preserved.
-        self.target_mobject = self.create_target(registration_tag="Transform")
+        self.target_mobject = self.create_target(delegate_for_original=True)
         self.check_target_mobject_validity()
         self.target_copy = self.target_mobject.copy()
         # Note, this potentially changes the structure
@@ -305,8 +305,8 @@ class ApplyFunction(Transform):
         self.function = function
         super().__init__(mobject, **kwargs)
 
-    def create_target(self, registration_tag=""):
-        target = self.function(self.mobject.copy(registration_tag=registration_tag))
+    def create_target(self, delegate_for_original=False):
+        target = self.function(self.mobject.copy(delegate_for_original=delegate_for_original))
         if not isinstance(target, Mobject):
             raise Exception("Functions passed to ApplyFunction must return object of type Mobject")
         return target

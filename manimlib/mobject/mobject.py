@@ -138,26 +138,27 @@ class Mobject(Container):
             os.path.join(consts.VIDEO_DIR, (name or str(self)) + ".png")
         )
 
-    def copy(self, registration_tag=""):
+    def copy(self, delegate_for_original=False):
         # TODO, either justify reason for shallow copy, or
         # remove this redundancy everywhere
         # return self.deepcopy()
 
         copy_mobject = copy.copy(self)
         copy_mobject.original = self
+        copy_mobject.delegate_for_original = delegate_for_original
         copy_mobject.points = np.array(self.points)
         copy_mobject.submobjects = [
-            submob.copy(registration_tag=registration_tag) for submob in self.submobjects
+            submob.copy(delegate_for_original=delegate_for_original) for submob in self.submobjects
         ]
         copy_mobject.updaters = list(self.updaters)
         family = self.get_family()
         for attr, value in list(self.__dict__.items()):
             if isinstance(value, Mobject) and value in family and value is not self:
-                setattr(copy_mobject, attr, value.copy(registration_tag=registration_tag))
+                setattr(copy_mobject, attr, value.copy(delegate_for_original=delegate_for_original))
             if isinstance(value, np.ndarray):
                 setattr(copy_mobject, attr, np.array(value))
         if not hasattr(copy_mobject, "skip_registration") or not copy_mobject.skip_registration:
-            register_mobject(copy_mobject, registration_tag=registration_tag)
+            register_mobject(copy_mobject)
         return copy_mobject
 
     def deepcopy(self):

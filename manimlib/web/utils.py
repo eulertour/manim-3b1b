@@ -60,29 +60,32 @@ def get_unserialized_transformations():
     return ret
 
 def register_transformation(mob, *transformation):
+    if hasattr(mob, "delegate_for_original") and mob.delegate_for_original:
+        mob_id = id(mob.original)
+    else:
+        mob_id = id(mob)
     transformation_list.append((
         len(transformation_list),
-        id(mob),
+        mob_id,
         *transformation,
     ))
 
-def register_mobject(mob, registration_tag=""):
+def register_mobject(mob):
     mob_id = id(mob)
     if mob_id not in current_mobjects:
         current_mobjects[mob_id] = mob
-        name_mobject(mob, mob.__class__.__name__, registration_tag=registration_tag)
+        name_mobject(mob, mob.__class__.__name__)
 
     initial_mobject_serializations[mob_id] = serialize_mobject(mob)
     prior_mobject_serializations[mob_id] = \
             copy.deepcopy(initial_mobject_serializations[mob_id])
 
 
-def name_mobject(mob, class_name, registration_tag=""):
+def name_mobject(mob, class_name):
     if hasattr(mob, "original"):
         original_mob_name = mobject_ids_to_names[id(mob.original)]
-        tagged_name = original_mob_name + f"{registration_tag}"
-        mob_name = tagged_name + f"Copy{mobject_name_copy_counts[tagged_name]}"
-        mobject_name_copy_counts[tagged_name] += 1
+        mob_name = original_mob_name + f"Copy{mobject_name_copy_counts[original_mob_name]}"
+        mobject_name_copy_counts[original_mob_name] += 1
     else:
         mob_name = f"{class_name}{mobject_class_counts[class_name]}"
         mobject_class_counts[class_name] += 1

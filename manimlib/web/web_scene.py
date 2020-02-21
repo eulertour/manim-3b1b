@@ -61,7 +61,10 @@ class WebScene(Scene):
                 current_serialization,
             )
             if diff:
-                mobject_diffs[mob_id] = diff
+                if hasattr(mob, "delegate_for_original") and mob.delegate_for_original:
+                    mobject_diffs[id(mob.original)] = diff
+                else:
+                    mobject_diffs[mob_id] = diff
             manimlib.web.utils.prior_mobject_serializations[mob_id] = current_serialization
         if mobject_diffs:
             ret["mobjects"] = mobject_diffs
