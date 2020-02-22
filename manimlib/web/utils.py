@@ -29,14 +29,15 @@ current_mobjects = {}
 mobject_class_counts = defaultdict(lambda: 1)
 # Maps a given Mobject name to the number of copies of that Mobject that have
 # been created.
-mobject_name_copy_counts = defaultdict(lambda: 1)
+mobject_copy_counts = defaultdict(lambda: 1)
 # Maps a given Mobject ID to a human-readable name for that Mobject.
 mobject_ids_to_names = {}
 # List of transformations applied to Mobjects in the order they are applied.
 transformation_list = []
 next_unserialized_transformation_index = 0
+web_scene = None
 
-def reset_data():
+def reset_data(scene):
     global \
         initial_mobject_serializations, \
         prior_mobject_serializations, \
@@ -44,7 +45,8 @@ def reset_data():
         mobject_class_counts, \
         mobject_ids_to_names, \
         transformation_list, \
-        next_unserialized_transformation_index
+        next_unserialized_transformation_index, \
+        web_scene
     initial_mobject_serializations = {}
     prior_mobject_serializations = {}
     current_mobjects = {}
@@ -52,6 +54,7 @@ def reset_data():
     mobject_ids_to_names = {}
     transformation_list = []
     next_unserialized_transformation_index = 0
+    web_scene = scene
 
 def get_unserialized_transformations():
     global next_unserialized_transformation_index
@@ -64,28 +67,31 @@ def register_transformation(mob, *transformation):
         mob_id = id(mob.original)
     else:
         mob_id = id(mob)
+    check_required(mob_id)
     transformation_list.append((
         len(transformation_list),
         mob_id,
         *transformation,
     ))
 
-def register_mobject(mob):
+def register_mobject(mob, copy_tag=""):
     mob_id = id(mob)
     if mob_id not in current_mobjects:
         current_mobjects[mob_id] = mob
-        name_mobject(mob, mob.__class__.__name__)
+        name_mobject(mob, copy_tag=copy_tag)
 
     initial_mobject_serializations[mob_id] = serialize_mobject(mob)
     prior_mobject_serializations[mob_id] = \
             copy.deepcopy(initial_mobject_serializations[mob_id])
 
 
-def name_mobject(mob, class_name):
+def name_mobject(mob, copy_tag="Copy"):
+    class_name = mob.__class__.__name__
     if hasattr(mob, "original"):
         original_mob_name = mobject_ids_to_names[id(mob.original)]
-        mob_name = original_mob_name + f"Copy{mobject_name_copy_counts[original_mob_name]}"
-        mobject_name_copy_counts[original_mob_name] += 1
+        tagged_name = original_mob_name + f"#{copy_tag}"
+        mob_name = tagged_name + f"{mobject_copy_counts[tagged_name]}"
+        mobject_copy_counts[tagged_name] += 1
     else:
         mob_name = f"{class_name}{mobject_class_counts[class_name]}"
         mobject_class_counts[class_name] += 1
@@ -96,6 +102,8 @@ def rename_initial_mobject_serializations():
     new_mobject_dict = {}
     for mob_id in initial_mobject_serializations:
         new_serialization = initial_mobject_serializations[mob_id]
+        if not initial_mobject_serializations[mob_id]['required']:
+            continue
         if "submobjects" in new_serialization:
             new_serialization["submobjects"] = list(map(
                 lambda submob_id: mobject_ids_to_names[submob_id],
@@ -140,6 +148,8 @@ def rename_diffs(diffs):
             if attr == "mobjects":
                 new_diff["mobjects"] = {}
                 for mob_id in diff["mobjects"]:
+                    if not initial_mobject_serializations[mob_id]['required']:
+                        continue
                     new_diff["mobjects"][mobject_ids_to_names[mob_id]] = rename_diff(diff["mobjects"][mob_id])
             elif attr == "transformations":
                 # This is the transformation list. Transformations have the form
@@ -147,6 +157,8 @@ def rename_diffs(diffs):
                 new_transformations = []
                 for transformation in diff[attr]:
                     mob_id = transformation[1]
+                    if not initial_mobject_serializations[mob_id]['required']:
+                        continue
                     mob_name = mobject_ids_to_names[mob_id]
                     if mob_id in mobject_ids_to_names:
                         new_transformations.append((
@@ -259,6 +271,7 @@ def serialize_mobject(mob, added=False):
         "args": copy.deepcopy(mob.args),
         "config": copy.deepcopy(mob.config),
         "added": added,
+        "required": False,
     }
     if class_name not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED:
         ret["submobjects"] = [id(mob) for mob in mob.submobjects]
@@ -354,3 +367,30 @@ def diff_contains_mobject_name(diff, mobject_name):
     if 'transformations' in diff and mobject_name in map(lambda t: t[1], diff['transformations']):
         return True
     return False
+
+"""
+A Mobject is considered required if a diff is applied to it while a Mobject
+in its hierarchy is added to the Scene. If a Mobject is required then all
+Mobjects in its hierarchy are as well.
+"""
+def check_required(mob_id):
+    added_mobject_ids = []
+    for mob in web_scene.mobjects:
+        added_mobject_ids.extend(map(lambda mob: id(mob), mob.get_family()))
+
+    required = False
+    queue = [mob_id]
+    while queue:
+        parent_id = queue.pop()
+        if parent_id in added_mobject_ids:
+            required = True
+            break
+        parent_mobject = current_mobjects.get(parent_id, None)
+        if parent_mobject:
+            for child_id in map(lambda mob: id(mob), parent_mobject.submobjects):
+                queue.append(child_id)
+
+    if required:
+        for submob_id in map(lambda mob: id(mob), current_mobjects[mob_id].get_family()):
+            if submob_id in initial_mobject_serializations:
+                initial_mobject_serializations[submob_id]['required'] = True

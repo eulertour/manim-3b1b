@@ -138,7 +138,7 @@ class Mobject(Container):
             os.path.join(consts.VIDEO_DIR, (name or str(self)) + ".png")
         )
 
-    def copy(self, delegate_for_original=False):
+    def copy(self, delegate_for_original=False, copy_tag=""):
         # TODO, either justify reason for shallow copy, or
         # remove this redundancy everywhere
         # return self.deepcopy()
@@ -148,17 +148,23 @@ class Mobject(Container):
         copy_mobject.delegate_for_original = delegate_for_original
         copy_mobject.points = np.array(self.points)
         copy_mobject.submobjects = [
-            submob.copy(delegate_for_original=delegate_for_original) for submob in self.submobjects
+            submob.copy(
+                delegate_for_original=delegate_for_original,
+                copy_tag=copy_tag,
+            ) for submob in self.submobjects
         ]
         copy_mobject.updaters = list(self.updaters)
         family = self.get_family()
         for attr, value in list(self.__dict__.items()):
             if isinstance(value, Mobject) and value in family and value is not self:
-                setattr(copy_mobject, attr, value.copy(delegate_for_original=delegate_for_original))
+                setattr(copy_mobject, attr, value.copy(
+                    delegate_for_original=delegate_for_original,
+                    copy_tag=copy_tag,
+                ))
             if isinstance(value, np.ndarray):
                 setattr(copy_mobject, attr, np.array(value))
         if not hasattr(copy_mobject, "skip_registration") or not copy_mobject.skip_registration:
-            register_mobject(copy_mobject)
+            register_mobject(copy_mobject, copy_tag=copy_tag)
         return copy_mobject
 
     def deepcopy(self):
@@ -1115,7 +1121,7 @@ class Mobject(Container):
             new_submobs.append(submob)
             for k in range(1, sf):
                 new_submobs.append(
-                    submob.copy().fade(1)
+                    submob.copy(copy_tag="AlignmentSubmobject").fade(1)
                 )
         self.submobjects = new_submobs
         return self
