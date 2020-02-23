@@ -138,7 +138,7 @@ class Mobject(Container):
             os.path.join(consts.VIDEO_DIR, (name or str(self)) + ".png")
         )
 
-    def copy(self, delegate_for_original=False, copy_tag=""):
+    def copy(self, delegate_for_original=False, copy_tag="Copy"):
         # TODO, either justify reason for shallow copy, or
         # remove this redundancy everywhere
         # return self.deepcopy()

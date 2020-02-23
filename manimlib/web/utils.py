@@ -85,7 +85,7 @@ def register_mobject(mob, copy_tag=""):
             copy.deepcopy(initial_mobject_serializations[mob_id])
 
 
-def name_mobject(mob, copy_tag="Copy"):
+def name_mobject(mob, copy_tag=""):
     class_name = mob.__class__.__name__
     if hasattr(mob, "original"):
         original_mob_name = mobject_ids_to_names[id(mob.original)]
