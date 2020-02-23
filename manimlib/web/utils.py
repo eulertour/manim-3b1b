@@ -10,6 +10,11 @@ else:
     from manimlib.web.web_mock import tex2points
 from collections import defaultdict
 
+past_hierarchy_when_diffed = defaultdict(lambda: collections.defaultdict(list))
+# Maps a given Mobject ID to a list of IDs of its past or present parent
+# Mobjects that were diffed while it was part of their hierarchy but not
+# considered to be required.
+past_diffed_parents = defaultdict(list)
 # Format string used in place of the Mobject ID for Mobjects that were copied
 # from one the user created.
 COPIED_MOBJECT_FORMAT = "<copy of {}>"
@@ -368,6 +373,11 @@ def diff_contains_mobject_name(diff, mobject_name):
         return True
     return False
 
+def mark_ids_required(mob_ids):
+    for mob_id in mob_ids:
+        if mob_id in initial_mobject_serializations:
+            initial_mobject_serializations[mob_id]['required'] = True
+
 """
 A Mobject is considered required if a diff is applied to it while a Mobject
 in its hierarchy is added to the Scene. If a Mobject is required then all
@@ -390,7 +400,12 @@ def check_required(mob_id):
             for child_id in map(lambda mob: id(mob), parent_mobject.submobjects):
                 queue.append(child_id)
 
+    family_ids = list(map(lambda mob: id(mob), current_mobjects[mob_id].get_family()))
     if required:
-        for submob_id in map(lambda mob: id(mob), current_mobjects[mob_id].get_family()):
-            if submob_id in initial_mobject_serializations:
-                initial_mobject_serializations[submob_id]['required'] = True
+        mark_ids_required(family_ids)
+        for parent_id in past_diffed_parents[mob_id]:
+            mark_ids_required(past_hierarchy_when_diffed[parent_id][mob_id])
+    else:
+        for submob_id in family_ids:
+            past_diffed_parents[submob_id].append(mob_id)
+            past_hierarchy_when_diffed[mob_id][submob_id] = family_ids
