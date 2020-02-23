@@ -311,6 +311,11 @@ class ApplyFunction(Transform):
             raise Exception("Functions passed to ApplyFunction must return object of type Mobject")
         return target
 
+    def finish(self):
+        super().finish()
+        for mob, target in zip(self.mobject.get_family(), self.target_mobject.get_family()):
+            mob.set_style(**target.get_style(), family=False)
+
 
 class ApplyMatrix(ApplyPointwiseFunction):
     def __init__(self, matrix, mobject, **kwargs):

@@ -98,6 +98,8 @@ class GroupExample(WebScene):
 
         self.play(FadeIn(g1))
         self.play(ReplacementTransform(g1, g2))
+        self.play(FadeOut(c2))
+        self.wait()
 
 
 class WarpSquare(WebScene):
