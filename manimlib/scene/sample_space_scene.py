@@ -3,12 +3,12 @@ from manimlib.animation.transform import MoveToTarget
 from manimlib.animation.transform import Transform
 from manimlib.animation.update import UpdateFromFunc
 from manimlib.constants import *
-from manimlib.scene.scene import Scene
+from manimlib.scene.scene import PyScene
 from manimlib.mobject.probability import SampleSpace
 from manimlib.mobject.types.vectorized_mobject import VGroup
 
 
-class SampleSpaceScene(Scene):
+class SampleSpaceScene(PyScene):
     def get_sample_space(self, **config):
         self.sample_space = SampleSpace(**config)
         return self.sample_space

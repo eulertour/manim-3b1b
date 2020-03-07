@@ -15,7 +15,7 @@ from manimlib.mobject.svg.tex_mobject import TextMobject
 from manimlib.utils.iterables import list_update
 
 
-class Scene(Container):
+class PyScene(Container):
     CONFIG = {
         "camera_class": Camera,
         "camera_config": {},

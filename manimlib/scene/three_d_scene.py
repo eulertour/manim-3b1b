@@ -7,12 +7,12 @@ from manimlib.mobject.geometry import Line
 from manimlib.mobject.three_dimensions import Sphere
 from manimlib.mobject.types.vectorized_mobject import VGroup
 from manimlib.mobject.types.vectorized_mobject import VectorizedPoint
-from manimlib.scene.scene import Scene
+from manimlib.scene.scene import PyScene
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.config_ops import merge_dicts_recursively
 
 
-class ThreeDScene(Scene):
+class ThreeDScene(PyScene):
     CONFIG = {
         "camera_class": ThreeDCamera,
         "ambient_camera_rotation": None,
@@ -73,7 +73,7 @@ class ThreeDScene(Scene):
         self.play(*anims + added_anims)
 
     def get_moving_mobjects(self, *animations):
-        moving_mobjects = Scene.get_moving_mobjects(self, *animations)
+        moving_mobjects = PyScene.get_moving_mobjects(self, *animations)
         camera_mobjects = self.camera.get_value_trackers()
         if any([cm in moving_mobjects for cm in camera_mobjects]):
             return self.mobjects

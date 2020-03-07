@@ -6,7 +6,7 @@ import subprocess as sp
 import sys
 import traceback
 
-from manimlib.scene.scene import Scene
+from manimlib.scene.scene import PyScene
 from manimlib.utils.sounds import play_error_sound
 from manimlib.utils.sounds import play_finish_sound
 import manimlib.constants
@@ -60,9 +60,9 @@ def open_file_if_needed(file_writer, **config):
 def is_child_scene(obj, module):
     if not inspect.isclass(obj):
         return False
-    if not issubclass(obj, Scene):
+    if not issubclass(obj, PyScene):
         return False
-    if obj == Scene:
+    if obj == PyScene:
         return False
     if not obj.__module__.startswith(module.__name__):
         return False

@@ -72,7 +72,7 @@ class OpeningManimExample(Scene):
         self.wait()
 
 
-class SquareToCircle(WebScene):
+class SquareToCircle(Scene):
     def construct(self):
         circle = Circle()
         square = Square()
@@ -85,7 +85,7 @@ class SquareToCircle(WebScene):
         self.play(FadeOut(circle))
 
 
-class GroupExample(WebScene):
+class GroupExample(Scene):
     def construct(self):
         c1 = Circle().shift(LEFT)
         s1 = Square().shift(RIGHT)
@@ -102,7 +102,7 @@ class GroupExample(WebScene):
         self.wait()
 
 
-class WarpSquare(WebScene):
+class WarpSquare(Scene):
     def construct(self):
         square = Square()
         self.add(square)
@@ -113,7 +113,7 @@ class WarpSquare(WebScene):
         self.wait()
 
 
-class WriteStuff(WebScene):
+class WriteStuff(Scene):
     def construct(self):
         example_text = TextMobject(
             "This is a some text",

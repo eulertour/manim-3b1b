@@ -13,7 +13,7 @@ from manimlib.mobject.svg.tex_mobject import TexMobject
 from manimlib.mobject.svg.tex_mobject import TextMobject
 from manimlib.mobject.types.vectorized_mobject import VGroup
 from manimlib.mobject.types.vectorized_mobject import VectorizedPoint
-from manimlib.scene.scene import Scene
+from manimlib.scene.scene import PyScene
 from manimlib.utils.bezier import interpolate
 from manimlib.utils.color import color_gradient
 from manimlib.utils.color import invert_color
@@ -25,7 +25,7 @@ from manimlib.utils.space_ops import angle_of_vector
 # is way too messy to work with.
 
 
-class GraphScene(Scene):
+class GraphScene(PyScene):
     CONFIG = {
         "x_min": -1,
         "x_max": 10,

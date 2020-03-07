@@ -24,7 +24,7 @@ from manimlib.mobject.svg.tex_mobject import TexMobject
 from manimlib.mobject.svg.tex_mobject import TextMobject
 from manimlib.mobject.types.vectorized_mobject import VGroup
 from manimlib.mobject.types.vectorized_mobject import VMobject
-from manimlib.scene.scene import Scene
+from manimlib.scene.scene import PyScene
 from manimlib.utils.rate_functions import rush_from
 from manimlib.utils.rate_functions import rush_into
 from manimlib.utils.space_ops import angle_of_vector
@@ -41,7 +41,7 @@ Z_COLOR = BLUE_D
 #
 # Also, methods I would have thought of as getters, like coords_to_vector, are
 # actually doing a lot of animating.
-class VectorScene(Scene):
+class VectorScene(PyScene):
     CONFIG = {
         "basis_vector_stroke_width": 6
     }

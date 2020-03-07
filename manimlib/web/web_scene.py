@@ -1,4 +1,4 @@
-from manimlib.scene.scene import Scene
+from manimlib.scene.scene import PyScene
 from manimlib.constants import *
 import copy
 import itertools as it
@@ -23,7 +23,7 @@ from manimlib.mobject.svg.tex_mobject import (
 import manimlib.web.utils
 
 
-class WebScene(Scene):
+class Scene(PyScene):
     def __init__(self, **kwargs):
         self.render_kwargs = kwargs
         # A list of Mobject diffs representing changes made outside of
@@ -37,18 +37,18 @@ class WebScene(Scene):
 
     def render(self):
         # Regular Scenes render upon instantiation.
-        return super(WebScene, self).__init__(**self.render_kwargs)
+        return super(Scene, self).__init__(**self.render_kwargs)
 
     def play(self, *args, **kwargs):
         self.animation_info_list.append(serialize_animation(args[0]))
         self.scene_diffs.append(self.compute_diff())
-        super(WebScene, self).play(*args, **kwargs)
+        super(Scene, self).play(*args, **kwargs)
         self.animation_diffs.append(self.compute_diff())
 
     def wait(self, duration=DEFAULT_WAIT_TIME, stop_condition=None):
         self.animation_info_list.append(serialize_wait(duration, stop_condition))
         self.scene_diffs.append(self.compute_diff())
-        super(WebScene, self).wait(duration=duration, stop_condition=stop_condition)
+        super(Scene, self).wait(duration=duration, stop_condition=stop_condition)
         self.animation_diffs.append(self.compute_diff())
 
     def compute_diff(self):
@@ -84,4 +84,4 @@ class WebScene(Scene):
             del self.initial_mobject_serializations[mobject_name]['required']
         self.animation_info_list = manimlib.web.utils.rename_animation_info_list(self.animation_info_list)
         manimlib.web.utils.web_scene = None
-        return super(WebScene, self).tear_down()
+        return super(Scene, self).tear_down()
