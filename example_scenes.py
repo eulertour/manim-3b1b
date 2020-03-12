@@ -85,6 +85,12 @@ class SquareToCircle(Scene):
         self.play(FadeOut(circle))
 
 
+class AnimateWithoutAdding(Scene):
+        square = Square().shift(LEFT)
+        circle = Circle().shift(RIGHT)
+        self.play(ReplacementTransform(square, circle))
+
+
 class GroupExample(Scene):
     def construct(self):
         c1 = Circle().shift(LEFT)
