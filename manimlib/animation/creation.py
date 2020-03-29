@@ -127,7 +127,7 @@ class Write(DrawBorderThenFill):
     def set_default_config_from_length(self, mobject):
         length = len(mobject.family_members_with_points())
         if self.run_time is None:
-            if length < 15:
+            if length < 12:
                 self.run_time = 1
             else:
                 self.run_time = 2
