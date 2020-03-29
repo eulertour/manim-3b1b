@@ -191,7 +191,6 @@ def rename_diffs(diffs):
 def rename_animation_info_list(animation_info_list):
     new_info = []
     for info in animation_info_list:
-        animation_class = info["className"]
         args = info["args"]
         config = info["config"]
         new_args = []
@@ -207,9 +206,10 @@ def rename_animation_info_list(animation_info_list):
             else:
                 new_config[key] = val
         new_info.append({
-            "className": animation_class,
+            "className": info["className"],
             "args": new_args,
             "config": new_config,
+            "runtime": info["run_time"],
         })
     return new_info
 
@@ -248,25 +248,37 @@ def tex_to_points(tex):
         print("searching cache for " + tex)
         return tex2points(tex)
 
+"""
+rename_rename_animation_info_list() must be updated in order for changes to
+the serialization to be visible.
+"""
 def serialize_animation(animation):
     return {
         "className": animation.__class__.__name__,
         "args": animation.args,
         "config": animation.config,
+        "run_time": animation.run_time,
     }
 
+"""
+rename_rename_animation_info_list() must be updated in order for changes to
+the serialization to be visible.
+"""
 def serialize_wait(duration, stop_condition):
     return {
         "className": "Wait",
         "args": [],
-        "config": {
-            "duration": duration,
-            "stop_condition": stop_condition,
-        },
+        "config": { "stop_condition": stop_condition },
+        "run_time": duration,
     }
 
 CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED = ["TexMobject", "TextMobject", "SingleStringTexMobject"]
 
+
+"""
+rename_initial_mobject_serializations() must be updated in order for changes to
+the serialization to be visible.
+"""
 def serialize_mobject(mob, added=False):
     from manimlib.mobject.mobject import Group, Mobject
     from manimlib.mobject.types.vectorized_mobject import VMobject, VGroup
