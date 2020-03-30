@@ -3,6 +3,7 @@ import random
 import warnings
 
 import numpy as np
+import manimlib.web.utils
 
 from manimlib.animation.animation import Animation
 from manimlib.animation.creation import Write
@@ -435,13 +436,22 @@ class PyScene(Container):
         else:
             self.update_mobjects(0)
 
-    def play(self, *args, **kwargs):
+    def play(self, *args, animation_info_list=None, **kwargs):
+        assert(
+            animation_info_list is not None,
+            "Called play without passing animation info list.",
+        )
         if len(args) == 0:
             warnings.warn("Called Scene.play with no animations")
             return
         animations = self.compile_play_args_to_animation_list(
             *args, **kwargs
         )
+
+        animation_info_list.append(manimlib.web.utils.serialize_animations(animations))
+        for animation in animations:
+            manimlib.web.utils.initial_mobject_serializations[id(animation.mobject)]['required'] = True
+
         self.begin_animations(animations)
         self.progress_through_animations(animations)
         self.finish_animations(animations)

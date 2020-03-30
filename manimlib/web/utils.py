@@ -72,6 +72,10 @@ def register_transformation(mob, *transformation):
         mob_id = id(mob.original)
     else:
         mob_id = id(mob)
+    if mob_id not in current_mobjects:
+        # This Mobject's registration was skipped, so its registration should be
+        # skipped as well.
+        return
     check_required(mob_id)
     transformation_list.append((
         len(transformation_list),
@@ -189,29 +193,32 @@ def rename_diffs(diffs):
 
 
 def rename_animation_info_list(animation_info_list):
-    new_info = []
-    for info in animation_info_list:
-        args = info["args"]
-        config = info["config"]
-        new_args = []
-        for arg in args:
-            if arg in mobject_ids_to_names:
-                new_args.append(mobject_ids_to_names[arg])
-            else:
-                new_args.append(arg)
-        new_config = {}
-        for key, val in config.items():
-            if val in mobject_ids_to_names:
-                new_config[key] = mobject_ids_to_names[val]
-            else:
-                new_config[key] = val
-        new_info.append({
-            "className": info["className"],
-            "args": new_args,
-            "config": new_config,
-            "runtime": info["run_time"],
-        })
-    return new_info
+    new_info_list = []
+    for animation_group in animation_info_list:
+        new_animation_group = []
+        for animation in animation_group:
+            args = animation["args"]
+            config = animation["config"]
+            new_args = []
+            for arg in args:
+                if arg in mobject_ids_to_names:
+                    new_args.append(mobject_ids_to_names[arg])
+                else:
+                    new_args.append(arg)
+            new_config = {}
+            for key, val in config.items():
+                if val in mobject_ids_to_names:
+                    new_config[key] = mobject_ids_to_names[val]
+                else:
+                    new_config[key] = val
+            new_animation_group.append({
+                "className": animation["className"],
+                "args": new_args,
+                "config": new_config,
+                "runtime": animation["run_time"],
+            })
+        new_info_list.append(new_animation_group)
+    return new_info_list
 
 
 def serialize_arg(arg):
@@ -248,6 +255,9 @@ def tex_to_points(tex):
         print("searching cache for " + tex)
         return tex2points(tex)
 
+def serialize_animations(animations):
+    return [serialize_animation(animation) for animation in animations]
+
 """
 rename_rename_animation_info_list() must be updated in order for changes to
 the serialization to be visible.
@@ -265,14 +275,19 @@ rename_rename_animation_info_list() must be updated in order for changes to
 the serialization to be visible.
 """
 def serialize_wait(duration, stop_condition):
-    return {
+    return [{
         "className": "Wait",
         "args": [],
         "config": { "stop_condition": stop_condition },
         "run_time": duration,
-    }
+    }]
 
-CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED = ["TexMobject", "TextMobject", "SingleStringTexMobject"]
+CLASSES_WHOSE_SUBMOBJECT_LIST_IS_NOT_SERIALIZED = [
+    "TexMobject",
+    "TextMobject",
+    "SingleStringTexMobject",
+    "DecimalNumber",
+]
 
 
 """
@@ -290,7 +305,7 @@ def serialize_mobject(mob, added=False):
         "added": added,
         "required": False,
     }
-    if class_name not in CLASSES_WHOSE_CHILDREN_ARE_NOT_SERIALIZED:
+    if class_name not in CLASSES_WHOSE_SUBMOBJECT_LIST_IS_NOT_SERIALIZED:
         ret["submobjects"] = [id(mob) for mob in mob.submobjects]
     if isinstance(mob, VMobject):
         # ret["position"] = mob.get_center()
@@ -363,9 +378,26 @@ def mobject_serialization_diff(starting_serialization, ending_serialization):
                     style_diff[style_attr] = (starting_attr[style_attr], ending_attr[style_attr])
             if style_diff:
                 ret["style"] = style_diff
+        elif attr == "config":
+            for config_attr in starting_attr:
+                assert(config_attr in ending_attr, "Mobject config changed.")
+            config_diff = {}
+            for config_attr in starting_attr:
+                starting_value = starting_attr[config_attr]
+                ending_value = ending_attr[config_attr]
+                if type(starting_value) == np.ndarray:
+                    if not np.allclose(starting_value, ending_value):
+                        config_diff[config_attr] = (starting_value, ending_value)
+                else:
+                    if starting_value != ending_value:
+                        config_diff[config_attr] = (starting_value, ending_value)
+            ret["config"] = config_diff
         else:
-            if starting_attr != ending_attr:
-                ret[attr] = (starting_attr, ending_attr)
+            try:
+                if starting_attr != ending_attr:
+                    ret[attr] = (starting_attr, ending_attr)
+            except Exception:
+                import ipdb; ipdb.set_trace(context=9)
     return ret
 
 def get_animated_mobjects(animation):
@@ -391,9 +423,11 @@ def mark_ids_required(mob_ids):
             initial_mobject_serializations[mob_id]['required'] = True
 
 """
-A Mobject is considered required if a diff is applied to it while a Mobject
-in its hierarchy is added to the Scene. If a Mobject is required then all
-Mobjects in its hierarchy are as well.
+Updates the required status and required parent history of Mobjects in the
+hierarchy of the Mobject that corresponds to mob_id. A Mobject is considered
+required if a diff is applied to it while a Mobject in its hierarchy is added to
+the Scene. If a Mobject is required then all Mobjects in its hierarchy are also
+required.
 """
 def check_required(mob_id):
     added_mobject_ids = []

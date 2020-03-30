@@ -40,11 +40,12 @@ class Scene(PyScene):
         return super(Scene, self).__init__(**self.render_kwargs)
 
     def play(self, *args, **kwargs):
-        self.animation_info_list.append(serialize_animation(args[0]))
-        manimlib.web.utils.initial_mobject_serializations[id(args[0].mobject)]['required'] = True
-
         self.scene_diffs.append(self.compute_diff())
-        super(Scene, self).play(*args, **kwargs)
+        super(Scene, self).play(
+            *args,
+            animation_info_list=self.animation_info_list,
+            **kwargs,
+        )
         self.animation_diffs.append(self.compute_diff())
 
     def wait(self, duration=DEFAULT_WAIT_TIME, stop_condition=None):
