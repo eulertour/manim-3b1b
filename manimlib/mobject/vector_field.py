@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import itertools as it
+# from PIL import Image
 import random
 
 from manimlib.constants import *

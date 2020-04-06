@@ -1,5 +1,7 @@
 import numpy as np
 
+# from PIL import Image
+
 from manimlib.constants import *
 from manimlib.mobject.mobject import Mobject
 from manimlib.mobject.shape_matchers import SurroundingRectangle
