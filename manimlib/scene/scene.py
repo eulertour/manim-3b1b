@@ -3,7 +3,6 @@ import random
 import warnings
 
 import numpy as np
-import manimlib.web.utils
 
 from manimlib.animation.animation import Animation
 from manimlib.animation.creation import Write
@@ -512,6 +511,20 @@ class PyScene(Container):
         if hasattr(self, "original_skipping_status"):
             self.skip_animations = self.original_skipping_status
         return self
+
+    def add_frames(self, *frames):
+        dt = 1 / self.camera.frame_rate
+        self.increment_time(len(frames) * dt)
+        if self.skip_animations:
+            return
+        for frame in frames:
+            self.file_writer.write_frame(frame)
+
+    def add_sound(self, sound_file, time_offset=0, gain=None, **kwargs):
+        if self.skip_animations:
+            return
+        time = self.get_time() + time_offset
+        self.file_writer.add_sound(sound_file, time, gain, **kwargs)
 
     def show_frame(self):
         self.update_frame(ignore_skipping=True)

@@ -12,7 +12,6 @@ from manimlib.utils.config_ops import digest_config
 from manimlib.utils.strings import split_string_list_to_isolate_substrings
 from manimlib.utils.tex_file_writing import tex_to_svg_file
 from manimlib.web.utils import tex_to_points
-from manimlib.web.utils import register_mobject
 
 
 TEX_MOB_SCALE_FACTOR = 0.05
@@ -43,13 +42,14 @@ class SingleStringTexMobject(SVGMobject):
         digest_config(self, kwargs)
         assert(isinstance(tex_string, str))
         self.tex_string = tex_string
+        VMobject.__init__(self, **kwargs)
 
     def generate_points(self):
         full_string = f"{self.prefix}{self.tex_string}{self.suffix}"
         path_data = tex_to_points(full_string)
         for point_list in path_data:
             if point_list:
-                vmob = VMobject(skip_registration=True)
+                vmob = VMobject()
                 vmob.append_points(point_list)
                 self.add(vmob)
 
@@ -263,6 +263,8 @@ class BulletedList(TextMobject):
         "dot_scale_factor": 2,
         # Have to include because of handle_multiple_args implementation
         "template_tex_file_body": TEMPLATE_TEXT_FILE_BODY,
+        "prefix": "",
+        "suffix": "",
     }
 
     def __init__(self, *items, **kwargs):

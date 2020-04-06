@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import types
 import traceback
 import manimlib.config
 import manimlib.constants

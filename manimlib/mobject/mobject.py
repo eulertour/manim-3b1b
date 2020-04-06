@@ -37,7 +37,6 @@ class Mobject(Container):
     }
 
     def __init__(self, **kwargs):
-        self.transformations = []
         Container.__init__(self, **kwargs)
         self.submobjects = []
         self.color = Color(self.color)
@@ -247,7 +246,7 @@ class Mobject(Container):
         respect to that point.
         """
         self.apply_points_function_about_point(
-            lambda points: scale_factor * points, **kwargs,
+            lambda points: scale_factor * points, **kwargs
         )
         return self
 
@@ -266,15 +265,10 @@ class Mobject(Container):
         return self.rotate(TAU / 2, axis, **kwargs)
 
     def stretch(self, factor, dim, **kwargs):
-        if factor == 1:
-            return
         def func(points):
             points[:, dim] *= factor
             return points
-        self.apply_points_function_about_point(
-            func,
-            **kwargs,
-        )
+        self.apply_points_function_about_point(func, **kwargs)
         return self
 
     def apply_function(self, function, **kwargs):
@@ -356,7 +350,7 @@ class Mobject(Container):
     # Note, much of these are now redundant with default behavior of
     # above methods
 
-    def apply_points_function_about_point(self, func, transform=None, about_point=None, about_edge=None):
+    def apply_points_function_about_point(self, func, about_point=None, about_edge=None):
         if about_point is None:
             if about_edge is None:
                 about_edge = ORIGIN
@@ -1065,7 +1059,6 @@ class Mobject(Container):
             sum(repeat_indices == i)
             for i in range(curr)
         ]
-        # print(split_factors) [2, 1]
         new_submobs = []
         for submob, sf in zip(self.submobjects, split_factors):
             new_submobs.append(submob)

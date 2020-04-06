@@ -18,7 +18,6 @@ from manimlib.utils.iterables import tuplify
 from manimlib.utils.simple_functions import clip_in_place
 from manimlib.utils.space_ops import rotate_vector
 from manimlib.utils.space_ops import get_norm
-from manimlib.web.utils import register_mobject
 
 # TODO
 # - Change cubic curve groups to have 4 points instead of 3
@@ -868,22 +867,10 @@ class VMobject(Mobject):
 
 class VGroup(VMobject):
     def __init__(self, *vmobjects, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(vmobjects)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         if not all([isinstance(m, VMobject) for m in vmobjects]):
             raise Exception("All submobjects must be of type VMobject")
         VMobject.__init__(self, **kwargs)
         self.add(*vmobjects)
-        #### EULERTOUR_INIT_END ####
-        if "skip_registration" not in kwargs or not kwargs["skip_registration"]:
-            register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class VectorizedPoint(VMobject):
@@ -896,13 +883,6 @@ class VectorizedPoint(VMobject):
     }
 
     def __init__(self, location=ORIGIN, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'location': location,
-                **kwargs,
-            })
         VMobject.__init__(self, **kwargs)
         self.set_points(np.array([location]))
 
@@ -921,12 +901,6 @@ class VectorizedPoint(VMobject):
 
 class CurvesAsSubmobjects(VGroup):
     def __init__(self, vmobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([vmobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         VGroup.__init__(self, **kwargs)
         tuples = vmobject.get_cubic_bezier_tuples()
         for tup in tuples:
@@ -944,12 +918,6 @@ class DashedVMobject(VMobject):
     }
 
     def __init__(self, vmobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([vmobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         VMobject.__init__(self, **kwargs)
         num_dashes = self.num_dashes
         ps_ratio = self.positive_space_ratio

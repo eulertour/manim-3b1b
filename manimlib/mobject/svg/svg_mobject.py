@@ -46,6 +46,22 @@ class SVGMobject(VMobject):
         VMobject.__init__(self, **kwargs)
         self.move_into_position()
 
+    def ensure_valid_file(self):
+        if self.file_name is None:
+            raise Exception("Must specify file for SVGMobject")
+        possible_paths = [
+            os.path.join(os.path.join("assets", "svg_images"), self.file_name),
+            os.path.join(os.path.join("assets", "svg_images"), self.file_name + ".svg"),
+            os.path.join(os.path.join("assets", "svg_images"), self.file_name + ".xdv"),
+            self.file_name,
+        ]
+        for path in possible_paths:
+            if os.path.exists(path):
+                self.file_path = path
+                return
+        raise IOError("No file matching %s in image directory" %
+                      self.file_name)
+
     def generate_points(self):
         doc = minidom.parseString(self.svg_string)
         self.ref_to_element = {}

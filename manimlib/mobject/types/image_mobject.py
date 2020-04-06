@@ -49,6 +49,17 @@ class ImageMobject(AbstractImageMobject):
 
     def __init__(self, filename_or_array, **kwargs):
         raise NotImplementedError('not available in javascript')
+        # digest_config(self, kwargs)
+        # if isinstance(filename_or_array, str):
+        #     path = get_full_raster_image_path(filename_or_array)
+        #     image = Image.open(path).convert(self.image_mode)
+        #     self.pixel_array = np.array(image)
+        # else:
+        #     self.pixel_array = np.array(filename_or_array)
+        # self.change_to_rgba_array()
+        # if self.invert:
+        #     self.pixel_array[:, :, :3] = 255 - self.pixel_array[:, :, :3]
+        # AbstractImageMobject.__init__(self, **kwargs)
 
     def change_to_rgba_array(self):
         pa = self.pixel_array
