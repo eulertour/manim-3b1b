@@ -25,8 +25,3 @@ dist/
 manim.egg-info/
 
 primes.py
-/media_dir.txt
-
-AUTHORS
-ChangeLog
-manimlib.egg-info

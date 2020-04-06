@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from copy import deepcopy
 
 import numpy as np
@@ -29,12 +28,6 @@ class Animation(object):
     }
 
     def __init__(self, mobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         assert(isinstance(mobject, Mobject))
         digest_config(self, kwargs)
         self.mobject = mobject
@@ -43,9 +36,6 @@ class Animation(object):
         if self.name:
             return self.name
         return self.__class__.__name__ + str(self.mobject)
-
-    def get_args(self):
-        return [self.mobject]
 
     def begin(self):
         # This is called right as an animation is being

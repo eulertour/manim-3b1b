@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import operator as op
 
 from manimlib.animation.animation import Animation
@@ -15,12 +14,6 @@ class UpdateFromFunc(Animation):
     }
 
     def __init__(self, mobject, update_function, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([mobject, update_function])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         self.update_function = update_function
         super().__init__(mobject, **kwargs)
 
@@ -35,12 +28,6 @@ class UpdateFromAlphaFunc(UpdateFromFunc):
 
 class MaintainPositionRelativeTo(Animation):
     def __init__(self, mobject, tracked_mobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([mobject, tracked_mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         self.tracked_mobject = tracked_mobject
         self.diff = op.sub(
             mobject.get_center(),

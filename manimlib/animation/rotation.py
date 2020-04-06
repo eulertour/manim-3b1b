@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.animation.animation import Animation
 from manimlib.animation.transform import Transform
 from manimlib.constants import OUT
@@ -34,14 +33,6 @@ class Rotate(Transform):
     }
 
     def __init__(self, mobject, angle=PI, axis=OUT, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'angle': angle,
-                'axis': axis,
-                **kwargs,
-            })
         if "path_arc" not in kwargs:
             kwargs["path_arc"] = angle
         if "path_arc_axis" not in kwargs:

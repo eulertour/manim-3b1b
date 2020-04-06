@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import warnings
 import numpy as np
 
@@ -213,22 +212,9 @@ class Arc(TipableVMobject):
     }
 
     def __init__(self, start_angle=0, angle=TAU / 4, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'start_angle': start_angle,
-                'angle': angle,
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         self.start_angle = start_angle
         self.angle = angle
         VMobject.__init__(self, **kwargs)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def generate_points(self):
         self.set_pre_positioned_points()
@@ -294,15 +280,6 @@ class Arc(TipableVMobject):
 
 class ArcBetweenPoints(Arc):
     def __init__(self, start, end, angle=TAU / 4, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([start, end])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'angle': angle,
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Arc.__init__(
             self,
             angle=angle,
@@ -311,45 +288,20 @@ class ArcBetweenPoints(Arc):
         if angle == 0:
             self.set_points_as_corners([LEFT, RIGHT])
         self.put_start_and_end_on(start, end)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class CurvedArrow(ArcBetweenPoints):
     def __init__(self, start_point, end_point, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([start_point, end_point])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         ArcBetweenPoints.__init__(self, start_point, end_point, **kwargs)
         self.add_tip()
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class CurvedDoubleArrow(CurvedArrow):
     def __init__(self, start_point, end_point, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([start_point, end_point])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         CurvedArrow.__init__(
             self, start_point, end_point, **kwargs
         )
         self.add_tip(at_start=True)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class Circle(Arc):
@@ -360,22 +312,7 @@ class Circle(Arc):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        if hasattr(self, 'kwargs'):
-            self.kwargs = { **kwargs, **self.kwargs }
-        else:
-            self.kwargs = kwargs
-        #### EULERTOUR_INIT_START ####
         Arc.__init__(self, 0, TAU, **kwargs)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def surround(self, mobject, dim_to_match=0, stretch=False, buffer_factor=1.2):
         # Ignores dim_to_match and stretch; result will always be a circle
@@ -408,19 +345,7 @@ class Dot(Circle):
     }
 
     def __init__(self, point=ORIGIN, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'point': point,
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Circle.__init__(self, arc_center=point, **kwargs)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class SmallDot(Dot):
@@ -436,20 +361,9 @@ class Ellipse(Circle):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Circle.__init__(self, **kwargs)
         self.set_width(self.width, stretch=True)
         self.set_height(self.height, stretch=True)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class AnnularSector(Arc):
@@ -514,22 +428,9 @@ class Line(TipableVMobject):
     }
 
     def __init__(self, start=LEFT, end=RIGHT, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'start': start,
-                'end': end,
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         self.set_start_and_end_attrs(start, end)
         VMobject.__init__(self, **kwargs)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def generate_points(self):
         if self.path_arc:
@@ -633,14 +534,6 @@ class DashedLine(Line):
     }
 
     def __init__(self, *args, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(args)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Line.__init__(self, *args, **kwargs)
         ps_ratio = self.positive_space_ratio
         num_dashes = self.calculate_num_dashes(ps_ratio)
@@ -651,9 +544,6 @@ class DashedLine(Line):
         )
         self.clear_points()
         self.add(*dashes)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def calculate_num_dashes(self, positive_space_ratio):
         try:
@@ -696,14 +586,6 @@ class TangentLine(Line):
     }
 
     def __init__(self, vmob, alpha, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([vmob, alpha])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         da = self.d_alpha
         a1 = np.clip(alpha - da, 0, 1)
@@ -714,9 +596,6 @@ class TangentLine(Line):
             **kwargs
         )
         self.scale(self.length / self.get_length())
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class Elbow(VMobject):
@@ -726,21 +605,10 @@ class Elbow(VMobject):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         VMobject.__init__(self, **kwargs)
         self.set_points_as_corners([UP, UP + RIGHT, RIGHT])
         self.set_width(self.width, about_point=ORIGIN)
         self.rotate(self.angle, about_point=ORIGIN)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class Arrow(Line):
@@ -753,23 +621,12 @@ class Arrow(Line):
     }
 
     def __init__(self, *args, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(args)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Line.__init__(self, *args, **kwargs)
         # TODO, should this be affected when
         # Arrow.set_stroke is called?
         self.initial_stroke_width = self.stroke_width
         self.add_tip()
         self.set_stroke_width_from_length()
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def scale(self, factor, **kwargs):
         if self.get_length() == 0:
@@ -835,55 +692,21 @@ class Vector(Arrow):
     }
 
     def __init__(self, direction=RIGHT, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'direction': direction,
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         if len(direction) == 2:
             direction = np.append(np.array(direction), 0)
         Arrow.__init__(self, ORIGIN, direction, **kwargs)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class DoubleArrow(Arrow):
     def __init__(self, *args, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(args)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Arrow.__init__(self, *args, **kwargs)
         self.add_tip(at_start=True)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class CubicBezier(VMobject):
     def __init__(self, points, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([points])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         VMobject.__init__(self, **kwargs)
         self.set_points(points)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class Polygon(VMobject):
@@ -892,21 +715,10 @@ class Polygon(VMobject):
     }
 
     def __init__(self, *vertices, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(vertices)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         VMobject.__init__(self, **kwargs)
         self.set_points_as_corners(
             [*vertices, vertices[0]]
         )
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def get_vertices(self):
         return self.get_start_anchors()
@@ -954,15 +766,6 @@ class RegularPolygon(Polygon):
     }
 
     def __init__(self, n=6, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'n': n,
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs, locals())
         if self.start_angle is None:
             if n % 2 == 0:
@@ -972,25 +775,11 @@ class RegularPolygon(Polygon):
         start_vect = rotate_vector(RIGHT, self.start_angle)
         vertices = compass_directions(n, start_vect)
         Polygon.__init__(self, *vertices, **kwargs)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class Triangle(RegularPolygon):
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         RegularPolygon.__init__(self, n=3, **kwargs)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class ArrowTip(Triangle):
@@ -1002,20 +791,9 @@ class ArrowTip(Triangle):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Triangle.__init__(self, **kwargs)
         self.set_width(self.length)
         self.set_height(self.length, stretch=True)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def get_base(self):
         return self.point_from_proportion(0.5)
@@ -1043,20 +821,9 @@ class Rectangle(Polygon):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Polygon.__init__(self, UL, UR, DR, DL, **kwargs)
-        self.set_width(self.width, stretch=True, add_transform=False)
-        self.set_height(self.height, stretch=True, add_transform=False)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
+        self.set_width(self.width, stretch=True)
+        self.set_height(self.height, stretch=True)
 
 
 class Square(Rectangle):
@@ -1065,18 +832,6 @@ class Square(Rectangle):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        if hasattr(self, 'kwargs'):
-            self.kwargs = { **kwargs, **self.kwargs }
-        else:
-            self.kwargs = kwargs
-        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         Rectangle.__init__(
             self,
@@ -1084,9 +839,6 @@ class Square(Rectangle):
             width=self.side_length,
             **kwargs
         )
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
 
 class RoundedRectangle(Rectangle):
@@ -1095,16 +847,5 @@ class RoundedRectangle(Rectangle):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         Rectangle.__init__(self, **kwargs)
         self.round_corners(self.corner_radius)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####

@@ -385,6 +385,7 @@ class PyScene(Container):
         def wrapper(self, *args, **kwargs):
             self.update_skipping_status()
             allow_write = not self.skip_animations
+
             func(self, *args, **kwargs)
             self.num_plays += 1
         return wrapper
@@ -432,18 +433,13 @@ class PyScene(Container):
         else:
             self.update_mobjects(0)
 
-    def play(self, *args, animation_info_list=None, **kwargs):
+    def play(self, *args, **kwargs):
         if len(args) == 0:
             warnings.warn("Called Scene.play with no animations")
             return
         animations = self.compile_play_args_to_animation_list(
             *args, **kwargs
         )
-
-        animation_info_list.append(manimlib.web.utils.serialize_animations(animations))
-        for animation in animations:
-            manimlib.web.utils.initial_mobject_serializations[id(animation.mobject)]['required'] = True
-
         self.begin_animations(animations)
         self.progress_through_animations(animations)
         self.finish_animations(animations)

@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.geometry import Rectangle
 from manimlib.utils.config_ops import digest_config
@@ -11,12 +10,6 @@ class ScreenRectangle(Rectangle):
     }
 
     def __init__(self, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         Rectangle.__init__(self, **kwargs)
         self.set_width(
             self.aspect_ratio * self.get_height(),
@@ -45,12 +38,6 @@ class PictureInPictureFrame(Rectangle):
     }
 
     def __init__(self, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         digest_config(self, kwargs)
         Rectangle.__init__(
             self,

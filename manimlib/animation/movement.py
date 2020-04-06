@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.animation.animation import Animation
 from manimlib.utils.rate_functions import linear
 
@@ -10,12 +9,6 @@ class Homotopy(Animation):
     }
 
     def __init__(self, homotopy, mobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([homotopy, mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         """
         Homotopy is a function from
         (x, y, z, t) to (x', y', z')
@@ -42,12 +35,6 @@ class SmoothedVectorizedHomotopy(Homotopy):
 
 class ComplexHomotopy(Homotopy):
     def __init__(self, complex_homotopy, mobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([complex_homotopy, mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         """
         Complex Hootopy a function Cx[0, 1] to C
         """
@@ -65,12 +52,6 @@ class PhaseFlow(Animation):
     }
 
     def __init__(self, function, mobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([function, mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         self.function = function
         super().__init__(mobject, **kwargs)
 
@@ -89,12 +70,6 @@ class MoveAlongPath(Animation):
     }
 
     def __init__(self, mobject, path, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([mobject, path])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         self.path = path
         super().__init__(mobject, **kwargs)
 

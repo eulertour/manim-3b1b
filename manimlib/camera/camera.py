@@ -223,36 +223,8 @@ class Camera(object):
             mobject.get_top()[1] < fc[1] - fh,
         ])
 
-    def capture_mobject(self, mobject, **kwargs):
-        return self.capture_mobjects([mobject], **kwargs)
-
     def capture_mobjects(self, mobjects, **kwargs):
-        mobjects = self.get_mobjects_to_display(mobjects, **kwargs)
-
-        # Organize this list into batches of the same type, and
-        # apply corresponding function to those batches
-        type_func_pairs = [
-            (VMobject, self.display_multiple_vectorized_mobjects),
-            (PMobject, self.display_multiple_point_cloud_mobjects),
-            (AbstractImageMobject, self.display_multiple_image_mobjects),
-            (Mobject, lambda batch, pa: batch),  # Do nothing
-        ]
-
-        def get_mobject_type(mobject):
-            for mobject_type, func in type_func_pairs:
-                if isinstance(mobject, mobject_type):
-                    return mobject_type
-            raise Exception(
-                "Trying to display something which is not of type Mobject"
-            )
-        batch_type_pairs = batch_by_property(mobjects, get_mobject_type)
-
-        # Display in these batches
-        for batch, batch_type in batch_type_pairs:
-            # check what the type is, and call the appropriate function
-            for mobject_type, func in type_func_pairs:
-                if batch_type == mobject_type:
-                    func(batch, self.pixel_array)
+        pass
 
     def save_frame(self, mobjects):
         data = []
@@ -264,21 +236,6 @@ class Camera(object):
                 })
         self.frame_data.append(data)
 
-    # Methods associated with svg rendering
-
-    def display_multiple_vectorized_mobjects(self, vmobjects, pixel_array):
-        pass
-        # if len(vmobjects) == 0:
-        #     return
-        # batch_file_pairs = batch_by_property(
-        #     vmobjects,
-        #     lambda vm: vm.get_background_image_file()
-        # )
-        # for batch, file_name in batch_file_pairs:
-        #     if file_name:
-        #         raise NotImplementedError('not available in javascript')
-        #     else:
-        #         self.display_multiple_non_background_colored_vmobjects(batch, pixel_array)
 
     def get_stroke_rgbas(self, vmobject, background=False):
         return vmobject.get_stroke_rgbas(background)
@@ -287,16 +244,6 @@ class Camera(object):
         return vmobject.get_fill_rgbas()
 
     # Methods for other rendering
-
-    def display_multiple_point_cloud_mobjects(self, pmobjects, pixel_array):
-        for pmobject in pmobjects:
-            self.display_point_cloud(
-                pmobject,
-                pmobject.points,
-                pmobject.rgbas,
-                self.adjusted_thickness(pmobject.stroke_width),
-                pixel_array,
-            )
 
     def display_point_cloud(self, pmobject, points, rgbas, thickness, pixel_array):
         if len(points) == 0:
@@ -329,9 +276,6 @@ class Camera(object):
         new_pa = pixel_array.reshape((ph * pw, rgba_len))
         new_pa[indices] = rgbas
         pixel_array[:, :] = new_pa.reshape((ph, pw, rgba_len))
-
-    def display_multiple_image_mobjects(self, image_mobjects, pixel_array):
-        raise NotImplementedError("not available in javascript")
 
     def adjust_out_of_range_points(self, points):
         if not np.any(points > self.max_allowable_norm):

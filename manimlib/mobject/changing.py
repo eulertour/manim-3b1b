@@ -17,14 +17,6 @@ class AnimatedBoundary(VGroup):
     }
 
     def __init__(self, vmobject, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([vmobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         super().__init__(**kwargs)
         self.vmobject = vmobject
         self.boundary_copies = [
@@ -39,8 +31,6 @@ class AnimatedBoundary(VGroup):
         self.add_updater(
             lambda m, dt: self.update_boundary_copies(dt)
         )
-        #### EULERTOUR_INIT_END ####
-        #### EULERTOUR_INIT_END ####
 
     def update_boundary_copies(self, dt):
         # Not actual time, but something which passes at
@@ -89,19 +79,9 @@ class TracedPath(VMobject):
     }
 
     def __init__(self, traced_point_func, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([traced_point_func])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         super().__init__(**kwargs)
         self.traced_point_func = traced_point_func
         self.add_updater(lambda m: m.update_path())
-        #### EULERTOUR_INIT_END ####
-        #### EULERTOUR_INIT_END ####
 
     def update_path(self):
         new_point = self.traced_point_func()

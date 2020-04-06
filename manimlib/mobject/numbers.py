@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.svg.tex_mobject import SingleStringTexMobject
 from manimlib.mobject.types.vectorized_mobject import VMobject
@@ -17,13 +16,6 @@ class DecimalNumber(VMobject):
     }
 
     def __init__(self, number=0, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'number': number,
-                **kwargs,
-            })
         super().__init__(**kwargs)
         self.number = number
         self.initial_config = kwargs
@@ -41,8 +33,6 @@ class DecimalNumber(VMobject):
             else:
                 num_string = num_string[1:]
 
-        if 'skip_registration' not in kwargs or not kwargs['skip_registration']:
-            kwargs['skip_registration'] = True
         self.add(*[
             SingleStringTexMobject(char, **kwargs)
             for char in num_string
@@ -50,7 +40,7 @@ class DecimalNumber(VMobject):
 
         # Add non-numerical bits
         if self.show_ellipsis:
-            self.add(SingleStringTexMobject("\\dots", skip_registration=True))
+            self.add(SingleStringTexMobject("\\dots"))
 
         if num_string.startswith("-"):
             minus = self.submobjects[0]
@@ -60,11 +50,7 @@ class DecimalNumber(VMobject):
             )
 
         if self.unit is not None:
-            self.unit_sign = SingleStringTexMobject(
-                self.unit,
-                skip_registration=True,
-                color=self.color,
-            )
+            self.unit_sign = SingleStringTexMobject(self.unit, color=self.color)
             self.add(self.unit_sign)
 
         self.arrange(
@@ -126,8 +112,6 @@ class DecimalNumber(VMobject):
         full_config = dict(self.CONFIG)
         full_config.update(self.initial_config)
         full_config.update(config)
-        if 'skip_registration' not in full_config or not full_config['skip_registration']:
-            full_config['skip_registration'] = True
         new_decimal = DecimalNumber(number, **full_config)
         # Make sure last digit has constant height
         new_decimal.scale(

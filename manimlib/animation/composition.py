@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 
 from manimlib.animation.animation import Animation
@@ -28,12 +27,6 @@ class AnimationGroup(Animation):
     }
 
     def __init__(self, *animations, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args(animations)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         digest_config(self, kwargs)
         self.animations = animations
         if self.group is None:
@@ -153,13 +146,6 @@ class LaggedStartMap(LaggedStart):
     }
 
     def __init__(self, AnimationClass, mobject, arg_creator=None, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([AnimationClass, mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'arg_creator': arg_creator,
-                **kwargs,
-            })
         args_list = []
         for submob in mobject:
             if arg_creator:
