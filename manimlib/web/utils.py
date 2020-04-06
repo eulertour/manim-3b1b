@@ -379,8 +379,6 @@ def mobject_serialization_diff(starting_serialization, ending_serialization):
             if style_diff:
                 ret["style"] = style_diff
         elif attr == "config":
-            for config_attr in starting_attr:
-                assert(config_attr in ending_attr, "Mobject config changed.")
             config_diff = {}
             for config_attr in starting_attr:
                 starting_value = starting_attr[config_attr]

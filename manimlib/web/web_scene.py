@@ -88,3 +88,6 @@ class Scene(PyScene):
         self.animation_info_list = manimlib.web.utils.rename_animation_info_list(self.animation_info_list)
         manimlib.web.utils.web_scene = None
         return super(Scene, self).tear_down()
+
+    def dump_frames(self):
+        return self.camera.frame_data

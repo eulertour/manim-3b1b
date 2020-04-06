@@ -20,6 +20,7 @@ from manimlib.utils.iterables import remove_list_redundancies
 from manimlib.utils.simple_functions import fdiv
 from manimlib.utils.space_ops import angle_of_vector
 from manimlib.utils.space_ops import get_norm
+from manimlib.web.utils import get_mobject_style
 
 
 class Camera(object):
@@ -48,6 +49,7 @@ class Camera(object):
     }
 
     def __init__(self, background=None, **kwargs):
+        self.frame_data = []
         digest_config(self, kwargs, locals())
         self.rgb_max_val = np.iinfo(self.pixel_array_dtype).max
         self.pixel_array_to_cairo_context = {}
@@ -251,6 +253,16 @@ class Camera(object):
             for mobject_type, func in type_func_pairs:
                 if batch_type == mobject_type:
                     func(batch, self.pixel_array)
+
+    def save_frame(self, mobjects):
+        data = []
+        for mob in mobjects:
+            if mob.points.size != 0:
+                data.append({
+                    'points': copy.deepcopy(mob.points),
+                    'style': get_mobject_style(mob),
+                })
+        self.frame_data.append(data)
 
     # Methods associated with svg rendering
 

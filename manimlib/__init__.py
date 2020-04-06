@@ -26,7 +26,7 @@ def get_scene(code, scene_names):
             'camera_config' : {
                'pixel_height' : 480,
                'pixel_width' : 854,
-               'frame_rate' : 15
+               'frame_rate' : 15,
             },
             'file_writer_config' : {
                'write_to_movie' : True,

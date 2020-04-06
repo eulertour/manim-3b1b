@@ -197,15 +197,10 @@ class PyScene(Container):
         ))
         return self
 
-    def remove(self, *mobjects_to_remove):
-        new_mobjects = [mob for mob in self.mobjects if mob not in mobjects_to_remove]
-        for mob in new_mobjects:
-            dfs = [mob]
-            while dfs:
-                parent = dfs.pop()
-                parent.submobjects = [child for child in parent.submobjects if child not in mobjects_to_remove]
-                dfs.extend(parent.submobjects)
-        self.mobjects = new_mobjects
+    def remove(self, *mobjects):
+        for list_name in "mobjects", "foreground_mobjects":
+            self.restructure_mobjects(mobjects, list_name, False)
+        return self
 
     def restructure_mobjects(self, to_remove,
                              mobject_list_name="mobjects",
@@ -422,6 +417,7 @@ class PyScene(Container):
                 animation.interpolate(alpha)
             self.update_mobjects(dt)
             self.update_frame(moving_mobjects, static_image)
+            self.camera.save_frame(self.mobjects)
 
     def finish_animations(self, animations):
         for animation in animations:
@@ -437,10 +433,6 @@ class PyScene(Container):
             self.update_mobjects(0)
 
     def play(self, *args, animation_info_list=None, **kwargs):
-        assert(
-            animation_info_list is not None,
-            "Called play without passing animation info list.",
-        )
         if len(args) == 0:
             warnings.warn("Called Scene.play with no animations")
             return
