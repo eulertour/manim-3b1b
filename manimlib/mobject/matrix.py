@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 
 from manimlib.constants import *
@@ -67,12 +66,6 @@ class Matrix(VMobject):
     }
 
     def __init__(self, matrix, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([matrix])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         """
         Matrix can either either include numbres, tex_strings,
         or mobjects

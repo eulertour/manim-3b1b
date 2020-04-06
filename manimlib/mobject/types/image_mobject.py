@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 
 from manimlib.constants import *
@@ -49,12 +48,6 @@ class ImageMobject(AbstractImageMobject):
     }
 
     def __init__(self, filename_or_array, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([filename_or_array])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         raise NotImplementedError('not available in javascript')
 
     def change_to_rgba_array(self):
@@ -114,12 +107,6 @@ class ImageMobjectFromCamera(AbstractImageMobject):
     }
 
     def __init__(self, camera, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([camera])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         self.camera = camera
         AbstractImageMobject.__init__(self, **kwargs)
 

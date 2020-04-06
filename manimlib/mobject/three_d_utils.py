@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 
 from manimlib.constants import ORIGIN

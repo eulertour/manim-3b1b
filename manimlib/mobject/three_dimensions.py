@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.geometry import Square
 from manimlib.mobject.types.vectorized_mobject import VGroup
@@ -33,12 +32,6 @@ class ParametricSurface(VGroup):
     }
 
     def __init__(self, func, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([func])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         VGroup.__init__(self, **kwargs)
         self.func = func
         self.setup_in_uv_space()
@@ -118,12 +111,6 @@ class Sphere(ParametricSurface):
     }
 
     def __init__(self, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         ParametricSurface.__init__(
             self, self.func, **kwargs
         )

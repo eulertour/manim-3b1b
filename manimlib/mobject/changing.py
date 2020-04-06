@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from manimlib.constants import *
 from manimlib.mobject.types.vectorized_mobject import VMobject
 from manimlib.mobject.types.vectorized_mobject import VGroup

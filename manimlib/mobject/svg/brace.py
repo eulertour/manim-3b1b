@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 
 from manimlib.animation.composition import AnimationGroup
@@ -22,13 +21,6 @@ class Brace(TexMobject):
     }
 
     def __init__(self, mobject, direction=DOWN, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([mobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'direction': direction,
-                **kwargs,
-            })
         digest_config(self, kwargs, locals())
         angle = -np.arctan2(*direction[:2]) + np.pi
         mobject.rotate(-angle, about_point=ORIGIN)
@@ -91,13 +83,6 @@ class BraceLabel(VMobject):
     }
 
     def __init__(self, obj, text, brace_direction=DOWN, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([obj, text])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                'brace_direction': brace_direction,
-                **kwargs,
-            })
         VMobject.__init__(self, **kwargs)
         self.brace_direction = brace_direction
         if isinstance(obj, list):

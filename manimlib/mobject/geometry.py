@@ -17,7 +17,6 @@ from manimlib.utils.space_ops import line_intersection
 from manimlib.utils.space_ops import get_norm
 from manimlib.utils.space_ops import normalize
 from manimlib.utils.space_ops import rotate_vector
-from manimlib.web.utils import register_mobject
 
 
 DEFAULT_DOT_RADIUS = 0.08

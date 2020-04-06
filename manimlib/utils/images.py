@@ -1,6 +1,8 @@
 import numpy as np
 import os
 
+# from PIL import Image
+
 from manimlib.utils.file_ops import seek_full_path_from_defaults
 
 
@@ -23,3 +25,6 @@ def drag_pixels(frames):
 
 def invert_image(image):
     raise NotImplementedError('not available in javascript')
+    # arr = np.array(image)
+    # arr = (255 * np.ones(arr.shape)).astype(arr.dtype) - arr
+    # return Image.fromarray(arr)

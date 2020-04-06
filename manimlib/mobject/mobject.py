@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from functools import reduce
 import copy
 import itertools as it
@@ -22,11 +21,6 @@ from manimlib.utils.simple_functions import get_parameters
 from manimlib.utils.space_ops import angle_of_vector
 from manimlib.utils.space_ops import get_norm
 from manimlib.utils.space_ops import rotation_matrix
-from manimlib.web.utils import (
-    serialize_mobject,
-    register_transformation,
-    register_mobject,
-)
 
 
 # TODO: Explain array_attrs
@@ -43,18 +37,6 @@ class Mobject(Container):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        if hasattr(self, 'kwargs'):
-            self.kwargs = { **kwargs, **self.kwargs }
-        else:
-            self.kwargs = kwargs
-        #### EULERTOUR_INIT_START ####
         self.transformations = []
         Container.__init__(self, **kwargs)
         self.submobjects = []
@@ -66,12 +48,6 @@ class Mobject(Container):
         self.reset_points()
         self.generate_points()
         self.init_colors()
-        if 'template_tex_file_body' in self.kwargs:
-            del self.kwargs['template_tex_file_body']
-        #### EULERTOUR_INIT_END ####
-        if "skip_registration" not in kwargs or not kwargs["skip_registration"]:
-            register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def __str__(self):
         return str(self.name)
@@ -138,33 +114,23 @@ class Mobject(Container):
             os.path.join(consts.VIDEO_DIR, (name or str(self)) + ".png")
         )
 
-    def copy(self, delegate_for_original=False, copy_tag="Copy"):
+    def copy(self):
         # TODO, either justify reason for shallow copy, or
         # remove this redundancy everywhere
         # return self.deepcopy()
 
         copy_mobject = copy.copy(self)
-        copy_mobject.original = self
-        copy_mobject.delegate_for_original = delegate_for_original
         copy_mobject.points = np.array(self.points)
         copy_mobject.submobjects = [
-            submob.copy(
-                delegate_for_original=delegate_for_original,
-                copy_tag=copy_tag,
-            ) for submob in self.submobjects
+            submob.copy() for submob in self.submobjects
         ]
         copy_mobject.updaters = list(self.updaters)
         family = self.get_family()
         for attr, value in list(self.__dict__.items()):
             if isinstance(value, Mobject) and value in family and value is not self:
-                setattr(copy_mobject, attr, value.copy(
-                    delegate_for_original=delegate_for_original,
-                    copy_tag=copy_tag,
-                ))
+                setattr(copy_mobject, attr, value.copy())
             if isinstance(value, np.ndarray):
                 setattr(copy_mobject, attr, np.array(value))
-        if not hasattr(copy_mobject, "skip_registration") or not copy_mobject.skip_registration:
-            register_mobject(copy_mobject, copy_tag=copy_tag)
         return copy_mobject
 
     def deepcopy(self):
@@ -265,14 +231,12 @@ class Mobject(Container):
 
     def shift(self, *vectors):
         total_vector = reduce(op.add, vectors)
-        if not np.allclose(total_vector, ORIGIN):
-            register_transformation(self, 'shift', total_vector)
         for mob in self.family_members_with_points():
             mob.points = mob.points.astype('float')
             mob.points += total_vector
         return self
 
-    def scale(self, scale_factor, add_transform=True, **kwargs):
+    def scale(self, scale_factor, **kwargs):
         """
         Default behavior is to scale about the center of the mobject.
         The argument about_edge can be a vector, indicating which side of
@@ -282,12 +246,8 @@ class Mobject(Container):
         Otherwise, if about_point is given a value, scaling is done with
         respect to that point.
         """
-        if scale_factor == 1:
-            return
         self.apply_points_function_about_point(
-            lambda points: scale_factor * points,
-            transform=(('scale', scale_factor, kwargs)) if add_transform else None,
-            **kwargs,
+            lambda points: scale_factor * points, **kwargs,
         )
         return self
 
@@ -298,7 +258,6 @@ class Mobject(Container):
         rot_matrix = rotation_matrix(angle, axis)
         self.apply_points_function_about_point(
             lambda points: np.dot(points, rot_matrix.T),
-            transform=(('rotate', angle, axis, kwargs)),
             **kwargs
         )
         return self
@@ -306,7 +265,7 @@ class Mobject(Container):
     def flip(self, axis=UP, **kwargs):
         return self.rotate(TAU / 2, axis, **kwargs)
 
-    def stretch(self, factor, dim, add_transform=True, **kwargs):
+    def stretch(self, factor, dim, **kwargs):
         if factor == 1:
             return
         def func(points):
@@ -314,7 +273,6 @@ class Mobject(Container):
             return points
         self.apply_points_function_about_point(
             func,
-            transform=(('stretch', factor, dim, kwargs)) if add_transform else None,
             **kwargs,
         )
         return self
@@ -325,7 +283,6 @@ class Mobject(Container):
             kwargs["about_point"] = ORIGIN
         self.apply_points_function_about_point(
             lambda points: np.apply_along_axis(function, 1, points),
-            transform=(('func', function)),
             **kwargs
         )
         return self
@@ -400,13 +357,11 @@ class Mobject(Container):
     # above methods
 
     def apply_points_function_about_point(self, func, transform=None, about_point=None, about_edge=None):
-        if transform is not None:
-            register_transformation(self, *transform)
         if about_point is None:
             if about_edge is None:
                 about_edge = ORIGIN
             about_point = self.get_critical_point(about_edge)
-        for mob in self.get_family():
+        for mob in self.family_members_with_points():
             mob.points -= about_point
             mob.points = func(mob.points)
             mob.points += about_point
@@ -513,8 +468,6 @@ class Mobject(Container):
 
     def rescale_to_fit(self, length, dim, stretch=False, **kwargs):
         old_length = self.length_over_dim(dim)
-        # print(self)
-        # print(f"scaling {old_length} to {length}")
         if old_length == 0:
             return self
         if stretch:
@@ -734,7 +687,6 @@ class Mobject(Container):
 
     def reduce_across_dimension(self, points_func, reduce_func, dim):
         points = self.get_all_points()
-        # print(points)
         if points is None or len(points) == 0:
             # Note, this default means things like empty VGroups
             # will appear to have a center at [0, 0, 0]
@@ -1108,9 +1060,7 @@ class Mobject(Container):
         target = curr + n
         # TODO, factor this out to utils so as to reuse
         # with VMobject.insert_n_curves
-        # print(np.arange(target) * curr) [0 2 4]
         repeat_indices = (np.arange(target) * curr) // target
-        # print(repeat_indices) [0 0 1]
         split_factors = [
             sum(repeat_indices == i)
             for i in range(curr)
@@ -1121,7 +1071,7 @@ class Mobject(Container):
             new_submobs.append(submob)
             for k in range(1, sf):
                 new_submobs.append(
-                    submob.copy(copy_tag="AlignmentSubmobject").fade(1)
+                    submob.copy().fade(1)
                 )
         self.submobjects = new_submobs
         return self
@@ -1180,22 +1130,7 @@ class Mobject(Container):
 
 class Group(Mobject):
     def __init__(self, *mobjects, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(mobjects)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        if hasattr(self, 'kwargs'):
-            self.kwargs = { **kwargs, **self.kwargs }
-        else:
-            self.kwargs = kwargs
-        #### EULERTOUR_INIT_START ####
         if not all([isinstance(m, Mobject) for m in mobjects]):
             raise Exception("All submobjects must be of type Mobject")
         Mobject.__init__(self, **kwargs)
         self.add(*mobjects)
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####

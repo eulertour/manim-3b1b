@@ -385,7 +385,6 @@ class PyScene(Container):
         def wrapper(self, *args, **kwargs):
             self.update_skipping_status()
             allow_write = not self.skip_animations
-
             func(self, *args, **kwargs)
             self.num_plays += 1
         return wrapper
@@ -433,6 +432,7 @@ class PyScene(Container):
         else:
             self.update_mobjects(0)
 
+    @handle_play_like_call
     def play(self, *args, **kwargs):
         if len(args) == 0:
             warnings.warn("Called Scene.play with no animations")
@@ -474,6 +474,7 @@ class PyScene(Container):
             )
         return time_progression
 
+    @handle_play_like_call
     def wait(self, duration=DEFAULT_WAIT_TIME, stop_condition=None):
         self.update_mobjects(dt=0)  # Any problems with this?
         if self.should_update_mobjects():

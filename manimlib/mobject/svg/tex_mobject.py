@@ -1,9 +1,8 @@
-from manimlib.web.utils import serialize_args, serialize_config
 from functools import reduce
 import operator as op
 
 from manimlib.constants import *
-from manimlib.mobject.geometry import Line, Circle, Rectangle
+from manimlib.mobject.geometry import Line
 from manimlib.mobject.svg.svg_mobject import SVGMobject
 from manimlib.mobject.svg.svg_mobject import VMobjectFromSVGPathstring
 from manimlib.mobject.types.vectorized_mobject import VGroup
@@ -12,7 +11,6 @@ from manimlib.mobject.types.vectorized_mobject import VMobject
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.strings import split_string_list_to_isolate_substrings
 from manimlib.utils.tex_file_writing import tex_to_svg_file
-from manimlib.mobject.types.vectorized_mobject import VMobject
 from manimlib.web.utils import tex_to_points
 from manimlib.web.utils import register_mobject
 
@@ -30,7 +28,7 @@ class TexSymbol(VMobjectFromSVGPathstring):
 class SingleStringTexMobject(SVGMobject):
     CONFIG = {
         "template_tex_file_body": TEMPLATE_TEX_FILE_BODY,
-        "stroke_width": 1,
+        "stroke_width": 0,
         "fill_opacity": 1.0,
         "background_stroke_width": 1,
         "background_stroke_color": BLACK,
@@ -42,29 +40,9 @@ class SingleStringTexMobject(SVGMobject):
     }
 
     def __init__(self, tex_string, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([tex_string])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        if hasattr(self, 'kwargs'):
-            self.kwargs = { 'tex_string': tex_string, **kwargs, **self.kwargs }
-        else:
-            self.kwargs = { 'tex_string': tex_string, **kwargs }
-        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         assert(isinstance(tex_string, str))
         self.tex_string = tex_string
-        VMobject.__init__(self, **kwargs)
-        # self.move_into_position()
-        # if self.height is None:
-        #     self.scale(TEX_MOB_SCALE_FACTOR)
-        # if self.organize_left_to_right:
-        #     self.organize_submobjects_left_to_right()
-        #### EULERTOUR_INIT_END ####
-        #### EULERTOUR_INIT_END ####
 
     def generate_points(self):
         full_string = f"{self.prefix}{self.tex_string}{self.suffix}"
@@ -167,34 +145,17 @@ class TexMobject(SingleStringTexMobject):
     }
 
     def __init__(self, *tex_strings, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(tex_strings)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         tex_strings = self.break_up_tex_strings(tex_strings)
         self.tex_strings = tex_strings
         SingleStringTexMobject.__init__(
-            self, self.arg_separator.join(tex_strings),
-            skip_registration=True, **kwargs
+            self, self.arg_separator.join(tex_strings), **kwargs
         )
-        self.skip_registration = False
         self.break_up_by_substrings()
         self.set_color_by_tex_to_color_map(self.tex_to_color_map)
 
         if self.organize_left_to_right:
             self.organize_submobjects_left_to_right()
-        if hasattr(self, 'kwargs'):
-            self.kwargs = { 'tex_strings': self.tex_strings, **kwargs, **self.kwargs }
-        else:
-            self.kwargs = { 'tex_strings': self.tex_strings, **kwargs }
-        #### EULERTOUR_INIT_END ####
-        register_mobject(self)
-        #### EULERTOUR_INIT_END ####
 
     def break_up_tex_strings(self, tex_strings):
         substrings_to_isolate = op.add(
@@ -221,7 +182,7 @@ class TexMobject(SingleStringTexMobject):
         config = dict(self.CONFIG)
         config["alignment"] = ""
         for tex_string in self.tex_strings:
-            sub_tex_mob = SingleStringTexMobject(tex_string, skip_registration=True, **config)
+            sub_tex_mob = SingleStringTexMobject(tex_string, **config)
             num_submobs = len(sub_tex_mob.submobjects)
             new_index = curr_index + num_submobs
             if num_submobs == 0:
@@ -248,7 +209,7 @@ class TexMobject(SingleStringTexMobject):
             else:
                 return tex1 == tex2
 
-        return VGroup(*[m for m in self.submobjects if test(tex, m.get_tex_string())], skip_registration=True)
+        return VGroup(*[m for m in self.submobjects if test(tex, m.get_tex_string())])
 
     def get_part_by_tex(self, tex, **kwargs):
         all_parts = self.get_parts_by_tex(tex, **kwargs)
@@ -305,14 +266,6 @@ class BulletedList(TextMobject):
     }
 
     def __init__(self, *items, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(items)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         line_separated_items = [s + "\\\\" for s in items]
         TextMobject.__init__(self, *line_separated_items, **kwargs)
         for part in self:
@@ -324,8 +277,6 @@ class BulletedList(TextMobject):
             aligned_edge=LEFT,
             buff=self.buff
         )
-        #### EULERTOUR_INIT_END ####
-        #### EULERTOUR_INIT_END ####
 
     def fade_all_but(self, index_or_string, opacity=0.5):
         arg = index_or_string
@@ -350,19 +301,9 @@ class TexMobjectFromPresetString(TexMobject):
     }
 
     def __init__(self, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args([])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         digest_config(self, kwargs)
         TexMobject.__init__(self, self.tex, **kwargs)
         self.set_color(self.color)
-        #### EULERTOUR_INIT_END ####
-        #### EULERTOUR_INIT_END ####
 
 
 class Title(TextMobject):
@@ -376,14 +317,6 @@ class Title(TextMobject):
     }
 
     def __init__(self, *text_parts, **kwargs):
-        #### EULERTOUR_INIT_START ####
-        if not hasattr(self, "args"):
-            self.args = serialize_args(text_parts)
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
-        #### EULERTOUR_INIT_START ####
         TextMobject.__init__(self, *text_parts, **kwargs)
         self.scale(self.scale_factor)
         self.to_edge(UP)
@@ -396,5 +329,3 @@ class Title(TextMobject):
                 underline.set_width(self.underline_width)
             self.add(underline)
             self.underline = underline
-        #### EULERTOUR_INIT_END ####
-        #### EULERTOUR_INIT_END ####

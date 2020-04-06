@@ -1,4 +1,3 @@
-from manimlib.web.utils import serialize_args, serialize_config
 import numpy as np
 import os
 import itertools as it
@@ -29,24 +28,24 @@ def get_colored_background_image(scalar_field_func,
                                  number_to_rgb_func,
                                  pixel_height=DEFAULT_PIXEL_HEIGHT,
                                  pixel_width=DEFAULT_PIXEL_WIDTH):
-    ph = pixel_height
-    pw = pixel_width
-    fw = FRAME_WIDTH
-    fh = FRAME_HEIGHT
-    points_array = np.zeros((ph, pw, 3))
-    x_array = np.linspace(-fw / 2, fw / 2, pw)
-    x_array = x_array.reshape((1, len(x_array)))
-    x_array = x_array.repeat(ph, axis=0)
-
-    y_array = np.linspace(fh / 2, -fh / 2, ph)
-    y_array = y_array.reshape((len(y_array), 1))
-    y_array.repeat(pw, axis=1)
-    points_array[:, :, 0] = x_array
-    points_array[:, :, 1] = y_array
-    scalars = np.apply_along_axis(scalar_field_func, 2, points_array)
-    rgb_array = number_to_rgb_func(scalars.flatten()).reshape((ph, pw, 3))
-    # return Image.fromarray((rgb_array * 255).astype('uint8'))
     raise NotImplementedError('not available in javascript')
+    # ph = pixel_height
+    # pw = pixel_width
+    # fw = FRAME_WIDTH
+    # fh = FRAME_HEIGHT
+    # points_array = np.zeros((ph, pw, 3))
+    # x_array = np.linspace(-fw / 2, fw / 2, pw)
+    # x_array = x_array.reshape((1, len(x_array)))
+    # x_array = x_array.repeat(ph, axis=0)
+
+    # y_array = np.linspace(fh / 2, -fh / 2, ph)
+    # y_array = y_array.reshape((len(y_array), 1))
+    # y_array.repeat(pw, axis=1)
+    # points_array[:, :, 0] = x_array
+    # points_array[:, :, 1] = y_array
+    # scalars = np.apply_along_axis(scalar_field_func, 2, points_array)
+    # rgb_array = number_to_rgb_func(scalars.flatten()).reshape((ph, pw, 3))
+    # return Image.fromarray((rgb_array * 255).astype('uint8'))
 
 
 def get_rgb_gradient_function(min_value=0, max_value=1,
@@ -146,12 +145,6 @@ class VectorField(VGroup):
     }
 
     def __init__(self, func, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([func])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         VGroup.__init__(self, **kwargs)
         self.func = func
         self.rgb_gradient_function = get_rgb_gradient_function(
@@ -228,12 +221,6 @@ class StreamLines(VGroup):
     }
 
     def __init__(self, func, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([func])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         VGroup.__init__(self, **kwargs)
         self.func = func
         dt = self.dt
@@ -306,12 +293,6 @@ class ShowPassingFlashWithThinningStrokeWidth(AnimationGroup):
     }
 
     def __init__(self, vmobject, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([vmobject])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         digest_config(self, kwargs)
         max_stroke_width = vmobject.get_stroke_width()
         max_time_width = kwargs.pop("time_width", self.time_width)
@@ -342,12 +323,6 @@ class AnimatedStreamLines(VGroup):
     }
 
     def __init__(self, stream_lines, **kwargs):
-        if not hasattr(self, "args"):
-            self.args = serialize_args([stream_lines])
-        if not hasattr(self, "config"):
-            self.config = serialize_config({
-                **kwargs,
-            })
         VGroup.__init__(self, **kwargs)
         self.stream_lines = stream_lines
         for line in stream_lines:
