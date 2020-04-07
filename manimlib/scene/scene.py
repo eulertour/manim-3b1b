@@ -486,6 +486,7 @@ class PyScene(Container):
                 last_t = t
                 self.update_mobjects(dt)
                 self.update_frame()
+                self.camera.save_frame(self.mobjects)
                 if stop_condition is not None and stop_condition():
                     time_progression.close()
                     break
@@ -494,6 +495,10 @@ class PyScene(Container):
             return self
         else:
             self.update_frame()
+            self.camera.save_frame(
+                self.mobjects,
+                num_frames=self.camera.frame_rate,
+            )
             dt = 1 / self.camera.frame_rate
             n_frames = int(duration / dt)
             frame = self.get_frame()

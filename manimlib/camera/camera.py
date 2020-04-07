@@ -226,7 +226,7 @@ class Camera(object):
     def capture_mobjects(self, mobjects, **kwargs):
         pass
 
-    def save_frame(self, mobjects):
+    def save_frame(self, mobjects, num_frames=1):
         data = []
         for mob in mobjects:
             if mob.points.size != 0:
@@ -234,7 +234,7 @@ class Camera(object):
                     'points': copy.deepcopy(mob.points),
                     'style': get_mobject_style(mob),
                 })
-        self.frame_data.append(data)
+        self.frame_data.extend([data] * num_frames)
 
 
     def get_stroke_rgbas(self, vmobject, background=False):
