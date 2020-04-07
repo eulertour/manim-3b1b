@@ -229,10 +229,10 @@ class Camera(object):
     def save_frame(self, mobjects, num_frames=1):
         data = []
         for mob in mobjects:
-            if mob.points.size != 0:
+            for submob in mob.family_members_with_points():
                 data.append({
-                    'points': copy.deepcopy(mob.points),
-                    'style': get_mobject_style(mob),
+                    'points': copy.deepcopy(submob.points),
+                    'style': get_mobject_style(submob),
                 })
         self.frame_data.extend([data] * num_frames)
 
