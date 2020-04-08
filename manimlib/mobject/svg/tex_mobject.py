@@ -46,11 +46,13 @@ class SingleStringTexMobject(SVGMobject):
 
     def generate_points(self):
         full_string = f"{self.prefix}{self.tex_string}{self.suffix}"
-        path_data = tex_to_points(full_string)
-        for point_list in path_data:
+        print(f"Generating tex for {full_string}")
+        path_data, commands = tex_to_points(full_string)
+        for point_list, command_list in zip(path_data, commands):
             if point_list:
                 vmob = VMobject()
                 vmob.append_points(point_list)
+                vmob.commands = command_list
                 self.add(vmob)
 
     def get_modified_expression(self, tex_string):

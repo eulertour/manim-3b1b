@@ -16,7 +16,8 @@ def get_mobject_style(mob):
 
 def tex_to_points(tex):
     if sys.platform == "emscripten":
-        return pyodide.as_nested_list(js.texToPoints(tex))
+        points, commands = js.texToPoints(tex)
+        return pyodide.as_nested_list(points), commands
     else:
         print("searching cache for " + tex)
         return tex2points(tex)

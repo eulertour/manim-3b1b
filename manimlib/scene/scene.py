@@ -416,6 +416,7 @@ class PyScene(Container):
                 animation.interpolate(alpha)
             self.update_mobjects(dt)
             self.update_frame(moving_mobjects, static_image)
+            self.add_frames(self.get_frame())
             self.camera.save_frame(self.mobjects)
 
     def finish_animations(self, animations):
@@ -486,6 +487,7 @@ class PyScene(Container):
                 last_t = t
                 self.update_mobjects(dt)
                 self.update_frame()
+                self.add_frames(self.get_frame())
                 self.camera.save_frame(self.mobjects)
                 if stop_condition is not None and stop_condition():
                     time_progression.close()
@@ -495,13 +497,14 @@ class PyScene(Container):
             return self
         else:
             self.update_frame()
+            dt = 1 / self.camera.frame_rate
+            n_frames = int(duration / dt)
+            frame = self.get_frame()
+            self.add_frames(*[frame] * n_frames)
             self.camera.save_frame(
                 self.mobjects,
                 num_frames=self.camera.frame_rate,
             )
-            dt = 1 / self.camera.frame_rate
-            n_frames = int(duration / dt)
-            frame = self.get_frame()
         return self
 
     def wait_until(self, stop_condition, max_time=60):
@@ -522,8 +525,6 @@ class PyScene(Container):
         self.increment_time(len(frames) * dt)
         if self.skip_animations:
             return
-        for frame in frames:
-            self.file_writer.write_frame(frame)
 
     def add_sound(self, sound_file, time_offset=0, gain=None, **kwargs):
         if self.skip_animations:
