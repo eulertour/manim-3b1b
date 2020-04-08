@@ -3,6 +3,7 @@ import numpy as np
 from manimlib.utils.simple_functions import choose
 
 CLOSED_THRESHOLD = 0.001
+DIAGONAL_MATRIX = None
 
 
 def bezier(points):
@@ -92,19 +93,24 @@ def get_smooth_handle_points(points):
     # l and u are the number of lower an upper diagonal rows
     # in the matrix to solve.
     l, u = 2, 1
-    # diag is a representation of the matrix in diagonal form
-    # See https://www.particleincell.com/2012/bezier-splines/
-    # for how to arive at these equations
-    diag = np.zeros((l + u + 1, 2 * num_handles))
-    diag[0, 1::2] = -1
-    diag[0, 2::2] = 1
-    diag[1, 0::2] = 2
-    diag[1, 1::2] = 1
-    diag[2, 1:-2:2] = -2
-    diag[3, 0:-3:2] = 1
-    # last
-    diag[2, -2] = -1
-    diag[1, -1] = 2
+    global DIAGONAL_MATRIX
+    if DIAGONAL_MATRIX is None:
+        # diag is a representation of the matrix in diagonal form
+        # See https://www.particleincell.com/2012/bezier-splines/
+        # for how to arive at these equations
+        diag = np.zeros((l + u + 1, 2 * num_handles))
+        diag[0, 1::2] = -1
+        diag[0, 2::2] = 1
+        diag[1, 0::2] = 2
+        diag[1, 1::2] = 1
+        diag[2, 1:-2:2] = -2
+        diag[3, 0:-3:2] = 1
+        # last
+        diag[2, -2] = -1
+        diag[1, -1] = 2
+        DIAGONAL_MATRIX = matrix = diag_to_matrix((l, u), diag)
+    else:
+        matrix = DIAGONAL_MATRIX
     # This is the b as in Ax = b, where we are solving for x,
     # and A is represented using diag.  However, think of entries
     # to x and b as being points in space, not numbers
@@ -113,12 +119,9 @@ def get_smooth_handle_points(points):
     b[0] = points[0]
     b[-1] = points[-1]
 
-    def solve_func(b):
-        raise NotImplementedError('not available in javascript')
     use_closed_solve_function = is_closed(points)
+    # Get equations to relate first and last points
     if use_closed_solve_function:
-        # Get equations to relate first and last points
-        matrix = diag_to_matrix((l, u), diag)
         # last row handles second derivative
         matrix[-1, [0, 1, -2, -1]] = [2, -1, 1, -2]
         # first row handles first derivative
@@ -127,15 +130,12 @@ def get_smooth_handle_points(points):
         b[0] = 2 * points[0]
         b[-1] = np.zeros(dim)
 
-        def closed_curve_solve_func(b):
-            return linalg.solve(matrix, b)
+    def solve_func(b):
+        return np.linalg.solve(matrix, b)
 
     handle_pairs = np.zeros((2 * num_handles, dim))
     for i in range(dim):
-        if use_closed_solve_function:
-            handle_pairs[:, i] = closed_curve_solve_func(b[:, i])
-        else:
-            handle_pairs[:, i] = solve_func(b[:, i])
+        handle_pairs[:, i] = solve_func(b[:, i])
     return handle_pairs[0::2], handle_pairs[1::2]
 
 
