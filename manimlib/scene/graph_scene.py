@@ -13,11 +13,11 @@ from manimlib.mobject.svg.tex_mobject import TexMobject
 from manimlib.mobject.svg.tex_mobject import TextMobject
 from manimlib.mobject.types.vectorized_mobject import VGroup
 from manimlib.mobject.types.vectorized_mobject import VectorizedPoint
-from manimlib.scene.scene import PyScene
 from manimlib.utils.bezier import interpolate
 from manimlib.utils.color import color_gradient
 from manimlib.utils.color import invert_color
 from manimlib.utils.space_ops import angle_of_vector
+from manimlib.web.web_scene import Scene
 
 # TODO, this should probably reimplemented entirely, especially so as to
 # better reuse code from mobject/coordinate_systems.
@@ -25,7 +25,7 @@ from manimlib.utils.space_ops import angle_of_vector
 # is way too messy to work with.
 
 
-class GraphScene(PyScene):
+class GraphScene(Scene):
     CONFIG = {
         "x_min": -1,
         "x_max": 10,

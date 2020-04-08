@@ -7,12 +7,12 @@ from manimlib.mobject.geometry import Line
 from manimlib.mobject.three_dimensions import Sphere
 from manimlib.mobject.types.vectorized_mobject import VGroup
 from manimlib.mobject.types.vectorized_mobject import VectorizedPoint
-from manimlib.scene.scene import PyScene
 from manimlib.utils.config_ops import digest_config
 from manimlib.utils.config_ops import merge_dicts_recursively
+from manimlib.web.web_scene import Scene
 
 
-class ThreeDScene(PyScene):
+class ThreeDScene(Scene):
     CONFIG = {
         "camera_class": ThreeDCamera,
         "ambient_camera_rotation": None,

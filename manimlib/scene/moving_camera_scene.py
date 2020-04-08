@@ -1,9 +1,9 @@
 from manimlib.camera.moving_camera import MovingCamera
-from manimlib.scene.scene import PyScene
 from manimlib.utils.iterables import list_update
+from manimlib.web.web_scene import Scene
 
 
-class MovingCameraScene(PyScene):
+class MovingCameraScene(Scene):
     CONFIG = {
         "camera_class": MovingCamera
     }

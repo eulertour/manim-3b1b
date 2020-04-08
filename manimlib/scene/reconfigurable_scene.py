@@ -1,10 +1,10 @@
 from manimlib.animation.transform import Transform
 from manimlib.constants import *
 from manimlib.mobject.mobject import Mobject
-from manimlib.scene.scene import PyScene
+from manimlib.web.web_scene import Scene
 
 
-class ReconfigurableScene(PyScene):
+class ReconfigurableScene(Scene):
     """
     Note, this seems to no longer work as intented.
     """
