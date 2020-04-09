@@ -230,13 +230,10 @@ class Camera(object):
         data = []
         for mob in mobjects:
             for submob in mob.family_members_with_points():
-                submob_data = {
+                data.append({
                     'points': copy.deepcopy(submob.points),
                     'style': get_mobject_style(submob),
-                }
-                if hasattr(submob, 'commands'):
-                    submob_data['commands'] = submob.commands
-                data.append(submob_data)
+                })
         self.frame_data.extend([data] * num_frames)
 
 

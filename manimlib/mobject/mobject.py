@@ -47,7 +47,6 @@ class Mobject(Container):
         self.reset_points()
         self.generate_points()
         self.init_colors()
-        self.commands = []
 
     def __str__(self):
         return str(self.name)
