@@ -1,9 +1,5 @@
-import sys
-if sys.platform == "emscripten":
-    import js
-    import pyodide
-else:
-    from manimlib.web.web_mock import tex2points
+import js
+import pyodide
 
 def get_mobject_style(mob):
     return {
@@ -15,9 +11,4 @@ def get_mobject_style(mob):
     }
 
 def tex_to_points(tex):
-    if sys.platform == "emscripten":
-        points = js.tex_to_points(tex)
-        return pyodide.as_nested_list(points)
-    else:
-        print("searching cache for " + tex)
-        return tex2points(tex)
+    return pyodide.as_nested_list(js.tex_to_points(tex))
