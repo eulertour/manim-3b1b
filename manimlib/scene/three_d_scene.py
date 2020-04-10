@@ -73,7 +73,7 @@ class ThreeDScene(Scene):
         self.play(*anims + added_anims)
 
     def get_moving_mobjects(self, *animations):
-        moving_mobjects = PyScene.get_moving_mobjects(self, *animations)
+        moving_mobjects = Scene.get_moving_mobjects(self, *animations)
         camera_mobjects = self.camera.get_value_trackers()
         if any([cm in moving_mobjects for cm in camera_mobjects]):
             return self.mobjects
