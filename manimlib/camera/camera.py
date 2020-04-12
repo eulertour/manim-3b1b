@@ -233,6 +233,7 @@ class Camera(object):
                 data.append({
                     'points': copy.deepcopy(submob.points),
                     'style': get_mobject_style(submob),
+                    'id': id(submob),
                 })
         self.frame_data.extend([data] * num_frames)
 
