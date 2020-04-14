@@ -230,10 +230,18 @@ class Camera(object):
         data = []
         for mob in mobjects:
             for submob in mob.family_members_with_points():
+                needs_redraw = False
+                submob_points = copy.deepcopy(submob.points)
+                point_hash = hash(tuple(submob_points.flatten()))
+                if submob.point_hash != point_hash:
+                    submob.point_hash = point_hash
+                    needs_redraw = True
                 data.append({
-                    'points': copy.deepcopy(submob.points),
+                    'points': submob_points,
                     'style': get_mobject_style(submob),
                     'id': id(submob),
+                    'needsRedraw': needs_redraw,
+                    'needsTriangulation': needs_redraw,
                 })
         self.frame_data.extend([data] * num_frames)
 
