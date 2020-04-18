@@ -127,6 +127,11 @@ def parse_cli():
             "--tex_dir",
             help="directory to write tex",
         )
+        parser.add_argument(
+            "--display_scenes",
+            action="store_true",
+            help="display scenes in the input file and quit",
+        )
         return parser.parse_args()
     except argparse.ArgumentError as err:
         print(str(err))
@@ -184,6 +189,7 @@ def get_configuration(args):
         "video_dir": args.video_dir,
         "video_output_dir": args.video_output_dir,
         "tex_dir": args.tex_dir,
+        "display_scenes": args.display_scenes,
     }
 
     # Camera configuration

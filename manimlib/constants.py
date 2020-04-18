@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import sys
 
 MEDIA_DIR = ""
 VIDEO_DIR = ""
@@ -27,10 +28,6 @@ def initialize_directories(config):
             )
         if not os.path.isdir(MEDIA_DIR):
             MEDIA_DIR = "./media"
-        print(
-            f"Media will be written to {MEDIA_DIR + os.sep}. You can change "
-            "this behavior with the --media_dir flag."
-        )
     else:
         if config["media_dir"]:
             print(
@@ -38,6 +35,12 @@ def initialize_directories(config):
                 "directory were both passed"
             )
 
+    if not os.path.exists(MEDIA_DIR):
+        print(
+            f"Media will be written to {MEDIA_DIR + os.sep}. You can change "
+            "this behavior with the --media_dir flag.",
+            file=sys.stderr,
+        )
     TEX_DIR = config["tex_dir"] or os.path.join(MEDIA_DIR, "Tex")
     TEXT_DIR = os.path.join(MEDIA_DIR, "texts")
     if not video_path_specified:
