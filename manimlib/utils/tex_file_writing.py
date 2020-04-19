@@ -58,7 +58,6 @@ def tex_to_dvi(tex_file):
             ">",
             os.devnull
         ]
-        print(" ".join(commands))
         exit_code = os.system(" ".join(commands))
         if exit_code != 0:
             log_file = tex_file.replace(".tex", ".log")
