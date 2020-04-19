@@ -150,22 +150,15 @@ def main(config):
             "start_at_animation_number",
             "end_at_animation_number",
             "leave_progress_bars",
+            "print_frames_only",
         ]
     ])
 
     for SceneClass in scene_classes_to_render:
-        try:
-            # By invoking, this renders the full scene
-            scene = SceneClass(**scene_kwargs)
+        # By invoking, this renders the full scene
+        scene = SceneClass(**scene_kwargs)
+        if not config["print_frames_only"]:
             open_file_if_needed(scene.file_writer, **config)
-            if config["sound"]:
-                play_finish_sound()
-        except Exception:
-            print("\n\n")
-            traceback.print_exc()
-            print("\n\n")
-            if config["sound"]:
-                play_error_sound()
 
 
 if __name__ == "__main__":

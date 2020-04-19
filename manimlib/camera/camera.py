@@ -3,6 +3,7 @@ import itertools as it
 import operator as op
 import time
 import copy
+import json
 
 from PIL import Image
 from scipy.spatial.distance import pdist
@@ -23,6 +24,7 @@ from manimlib.utils.iterables import remove_list_redundancies
 from manimlib.utils.simple_functions import fdiv
 from manimlib.utils.space_ops import angle_of_vector
 from manimlib.utils.space_ops import get_norm
+from manimlib.web.utils import get_mobject_style
 
 
 class Camera(object):
@@ -267,6 +269,26 @@ class Camera(object):
             for mobject_type, func in type_func_pairs:
                 if batch_type == mobject_type:
                     func(batch, self.pixel_array)
+
+    def save_frame(self, mobjects, num_frames=1):
+        data = []
+        for mob in mobjects:
+            for submob in mob.family_members_with_points():
+                needs_redraw = False
+                submob_points = copy.deepcopy(submob.points)
+                point_hash = hash(tuple(submob_points.flatten()))
+                if submob.point_hash != point_hash:
+                    submob.point_hash = point_hash
+                    needs_redraw = True
+                data.append({
+                    'points': submob_points.tolist(),
+                    'style': get_mobject_style(submob),
+                    'id': id(submob),
+                    'needsRedraw': needs_redraw,
+                    'needsTriangulation': needs_redraw,
+                })
+        for _ in range(num_frames):
+            print(json.dumps(data))
 
     # Methods associated with svg rendering
 

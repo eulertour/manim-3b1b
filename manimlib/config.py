@@ -132,6 +132,11 @@ def parse_cli():
             action="store_true",
             help="display scenes in the input file and quit",
         )
+        parser.add_argument(
+            "--print_frames_only",
+            action="store_true",
+            help="print frame data exclusively",
+        )
         return parser.parse_args()
     except argparse.ArgumentError as err:
         print(str(err))
@@ -190,6 +195,7 @@ def get_configuration(args):
         "video_output_dir": args.video_output_dir,
         "tex_dir": args.tex_dir,
         "display_scenes": args.display_scenes,
+        "print_frames_only": args.print_frames_only,
     }
 
     # Camera configuration

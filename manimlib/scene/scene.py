@@ -34,9 +34,10 @@ class Scene(Container):
     def __init__(self, **kwargs):
         Container.__init__(self, **kwargs)
         self.camera = self.camera_class(**self.camera_config)
-        self.file_writer = SceneFileWriter(
-            self, **self.file_writer_config,
-        )
+        if not self.print_frames_only:
+            self.file_writer = SceneFileWriter(
+                self, **self.file_writer_config,
+            )
 
         self.mobjects = []
         # TODO, remove need for foreground mobjects
@@ -53,9 +54,10 @@ class Scene(Container):
             self.construct()
         except EndSceneEarlyException:
             pass
-        self.tear_down()
-        self.file_writer.finish()
-        self.print_end_message()
+        if not self.print_frames_only:
+            self.tear_down()
+            self.file_writer.finish()
+            self.print_end_message()
 
     def setup(self):
         """
@@ -296,31 +298,36 @@ class Scene(Container):
                 return mobjects[i:]
         return []
 
-    def get_time_progression(self, run_time, n_iterations=None, override_skip_animations=False):
+    def get_time_progression(self, run_time, description, n_iterations=None, override_skip_animations=False):
         if self.skip_animations and not override_skip_animations:
             times = [run_time]
         else:
             step = 1 / self.camera.frame_rate
             times = np.arange(0, run_time, step)
-        time_progression = ProgressDisplay(
-            times, total=n_iterations,
-            leave=self.leave_progress_bars,
-            ascii=False if platform.system() != 'Windows' else True
-        )
-        return time_progression
+        if self.print_frames_only:
+            return times
+        else:
+            time_progression = ProgressDisplay(
+                times, total=n_iterations,
+                leave=self.leave_progress_bars,
+                ascii=False if platform.system() != 'Windows' else True
+            )
+            time_progression.set_description(description)
+            return time_progression
 
     def get_run_time(self, animations):
         return np.max([animation.run_time for animation in animations])
 
     def get_animation_time_progression(self, animations):
         run_time = self.get_run_time(animations)
-        time_progression = self.get_time_progression(run_time)
-        time_progression.set_description("".join([
-            "Animation {}: ".format(self.num_plays),
-            str(animations[0]),
-            (", etc." if len(animations) > 1 else ""),
-        ]))
-        return time_progression
+        return self.get_time_progression(
+            run_time,
+            "".join([
+                "Animation {}: ".format(self.num_plays),
+                str(animations[0]),
+                (", etc." if len(animations) > 1 else ""),
+            ]),
+        )
 
     def compile_play_args_to_animation_list(self, *args, **kwargs):
         """
@@ -402,9 +409,11 @@ class Scene(Container):
         def wrapper(self, *args, **kwargs):
             self.update_skipping_status()
             allow_write = not self.skip_animations
-            self.file_writer.begin_animation(allow_write)
+            if not self.print_frames_only:
+                self.file_writer.begin_animation(allow_write)
             func(self, *args, **kwargs)
-            self.file_writer.end_animation(allow_write)
+            if not self.print_frames_only:
+                self.file_writer.end_animation(allow_write)
             self.num_plays += 1
         return wrapper
 
@@ -437,6 +446,8 @@ class Scene(Container):
             self.update_mobjects(dt)
             self.update_frame(moving_mobjects, static_image)
             self.add_frames(self.get_frame())
+            if self.print_frames_only:
+                self.camera.save_frame(self.mobjects)
 
     def finish_animations(self, animations):
         for animation in animations:
@@ -480,16 +491,14 @@ class Scene(Container):
         if stop_condition is not None:
             time_progression = self.get_time_progression(
                 duration,
+                "Waiting for {}".format(stop_condition.__name__),
                 n_iterations=-1,  # So it doesn't show % progress
                 override_skip_animations=True
             )
-            time_progression.set_description(
-                "Waiting for {}".format(stop_condition.__name__)
-            )
         else:
-            time_progression = self.get_time_progression(duration)
-            time_progression.set_description(
-                "Waiting {}".format(self.num_plays)
+            time_progression = self.get_time_progression(
+                duration,
+                "Waiting {}".format(self.num_plays),
             )
         return time_progression
 
@@ -540,7 +549,8 @@ class Scene(Container):
         if self.skip_animations:
             return
         for frame in frames:
-            self.file_writer.write_frame(frame)
+            if not self.print_frames_only:
+                self.file_writer.write_frame(frame)
 
     def add_sound(self, sound_file, time_offset=0, gain=None, **kwargs):
         if self.skip_animations:
