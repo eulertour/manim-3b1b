@@ -11,5 +11,7 @@ def main():
 
     if config["use_javascript_svg_interpretation"]:
         manimlib.constants.USE_JAVASCRIPT_SVG_INTERPRETATION = True
+    if config["print_frames_only"]:
+        manimlib.constants.PRINT_FRAMES_ONLY = True
 
     manimlib.extract_scene.main(config)

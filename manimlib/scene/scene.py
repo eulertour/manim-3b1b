@@ -5,6 +5,7 @@ import platform
 
 from tqdm import tqdm as ProgressDisplay
 import numpy as np
+import manimlib.constants
 
 from manimlib.animation.animation import Animation
 from manimlib.animation.creation import Write
@@ -34,7 +35,7 @@ class Scene(Container):
     def __init__(self, **kwargs):
         Container.__init__(self, **kwargs)
         self.camera = self.camera_class(**self.camera_config)
-        if not self.print_frames_only:
+        if not manimlib.constants.PRINT_FRAMES_ONLY:
             self.file_writer = SceneFileWriter(
                 self, **self.file_writer_config,
             )
@@ -54,7 +55,7 @@ class Scene(Container):
             self.construct()
         except EndSceneEarlyException:
             pass
-        if not self.print_frames_only:
+        if not manimlib.constants.PRINT_FRAMES_ONLY:
             self.tear_down()
             self.file_writer.finish()
             self.print_end_message()
@@ -304,7 +305,7 @@ class Scene(Container):
         else:
             step = 1 / self.camera.frame_rate
             times = np.arange(0, run_time, step)
-        if self.print_frames_only:
+        if manimlib.constants.PRINT_FRAMES_ONLY:
             return times
         else:
             time_progression = ProgressDisplay(
@@ -409,10 +410,10 @@ class Scene(Container):
         def wrapper(self, *args, **kwargs):
             self.update_skipping_status()
             allow_write = not self.skip_animations
-            if not self.print_frames_only:
+            if not manimlib.constants.PRINT_FRAMES_ONLY:
                 self.file_writer.begin_animation(allow_write)
             func(self, *args, **kwargs)
-            if not self.print_frames_only:
+            if not manimlib.constants.PRINT_FRAMES_ONLY:
                 self.file_writer.end_animation(allow_write)
             self.num_plays += 1
         return wrapper
@@ -446,7 +447,7 @@ class Scene(Container):
             self.update_mobjects(dt)
             self.update_frame(moving_mobjects, static_image)
             self.add_frames(self.get_frame())
-            if self.print_frames_only:
+            if manimlib.constants.PRINT_FRAMES_ONLY:
                 self.camera.save_frame(self.mobjects)
 
     def finish_animations(self, animations):
@@ -549,7 +550,7 @@ class Scene(Container):
         if self.skip_animations:
             return
         for frame in frames:
-            if not self.print_frames_only:
+            if not manimlib.constants.PRINT_FRAMES_ONLY:
                 self.file_writer.write_frame(frame)
 
     def add_sound(self, sound_file, time_offset=0, gain=None, **kwargs):
