@@ -2,6 +2,8 @@ import itertools as it
 import re
 import string
 import warnings
+import json
+import manimlib.constants
 
 from xml.dom import minidom
 
@@ -63,15 +65,32 @@ class SVGMobject(VMobject):
                       self.file_name)
 
     def generate_points(self):
-        doc = minidom.parse(self.file_path)
-        self.ref_to_element = {}
-        for svg in doc.getElementsByTagName("svg"):
-            mobjects = self.get_mobjects_from(svg)
-            if self.unpack_groups:
-                self.add(*mobjects)
-            else:
-                self.add(*mobjects[0].submobjects)
-        doc.unlink()
+        if manimlib.constants.USE_JAVASCRIPT_SVG_INTERPRETATION:
+            print(json.dumps({
+                'message': 'svgRequest',
+                'data': open(self.file_path, "r").read(),
+            }))
+
+            print(json.dumps({
+                'message': 'debug',
+                'data': self.file_path,
+            }))
+
+            point_data = json.loads(input())
+            for points_array in point_data:
+                m = VMobject()
+                m.points = np.array(points_array)
+                self.add(m)
+        else:
+            doc = minidom.parse(self.file_path)
+            self.ref_to_element = {}
+            for svg in doc.getElementsByTagName("svg"):
+                mobjects = self.get_mobjects_from(svg)
+                if self.unpack_groups:
+                    self.add(*mobjects)
+                else:
+                    self.add(*mobjects[0].submobjects)
+            doc.unlink()
 
     def get_mobjects_from(self, element):
         result = []

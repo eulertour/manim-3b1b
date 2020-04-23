@@ -288,7 +288,10 @@ class Camera(object):
                     'needsTriangulation': needs_redraw,
                 })
         for _ in range(num_frames):
-            print(json.dumps(data))
+            print(json.dumps({
+                'message': 'frame',
+                'data': data,
+            }))
 
     # Methods associated with svg rendering
 

@@ -135,7 +135,12 @@ def parse_cli():
         parser.add_argument(
             "--print_frames_only",
             action="store_true",
-            help="print frame data exclusively",
+            help="print frame data rather than generating video",
+        )
+        parser.add_argument(
+            "--use_javascript_svg_interpretation",
+            action="store_true",
+            help="interpret svgs in javascript",
         )
         return parser.parse_args()
     except argparse.ArgumentError as err:
@@ -196,6 +201,7 @@ def get_configuration(args):
         "tex_dir": args.tex_dir,
         "display_scenes": args.display_scenes,
         "print_frames_only": args.print_frames_only,
+        "use_javascript_svg_interpretation": args.use_javascript_svg_interpretation,
     }
 
     # Camera configuration
