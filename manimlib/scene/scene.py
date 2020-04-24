@@ -517,6 +517,8 @@ class Scene(Container):
                 self.update_mobjects(dt)
                 self.update_frame()
                 self.add_frames(self.get_frame())
+                if manimlib.constants.PRINT_FRAMES_ONLY:
+                    self.camera.save_frame(self.mobjects)
                 if stop_condition is not None and stop_condition():
                     time_progression.close()
                     break
@@ -529,6 +531,11 @@ class Scene(Container):
             n_frames = int(duration / dt)
             frame = self.get_frame()
             self.add_frames(*[frame] * n_frames)
+            if manimlib.constants.PRINT_FRAMES_ONLY:
+                self.camera.save_frame(
+                    self.mobjects,
+                    num_frames=self.camera.frame_rate,
+                )
         return self
 
     def wait_until(self, stop_condition, max_time=60):
