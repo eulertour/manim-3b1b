@@ -8,6 +8,7 @@ VIDEO_OUTPUT_DIR = ""
 TEX_DIR = ""
 TEXT_DIR = ""
 USE_JAVASCRIPT_SVG_INTERPRETATION = False
+PRINT_FRAMES_ONLY = False
 
 
 def initialize_directories(config):
