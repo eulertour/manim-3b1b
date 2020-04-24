@@ -4,6 +4,7 @@ import operator as op
 import time
 import copy
 import json
+import manimlib.constants
 
 from PIL import Image
 from scipy.spatial.distance import pdist
@@ -54,11 +55,13 @@ class Camera(object):
 
     def __init__(self, background=None, **kwargs):
         digest_config(self, kwargs, locals())
+        self.captured_mobject_ids = set()
         self.rgb_max_val = np.iinfo(self.pixel_array_dtype).max
         self.pixel_array_to_cairo_context = {}
-        self.init_background()
-        self.resize_frame_shape()
-        self.reset()
+        if not manimlib.constants.PRINT_FRAMES_ONLY:
+            self.init_background()
+            self.resize_frame_shape()
+            self.reset()
 
     def __deepcopy__(self, memo):
         # This is to address a strange bug where deepcopying
@@ -274,19 +277,19 @@ class Camera(object):
         data = []
         for mob in mobjects:
             for submob in mob.family_members_with_points():
-                needs_redraw = False
-                submob_points = copy.deepcopy(submob.points)
-                point_hash = hash(tuple(submob_points.flatten()))
-                if submob.point_hash != point_hash:
-                    submob.point_hash = point_hash
-                    needs_redraw = True
+                submob_id = id(submob)
+                point_hash = hash(tuple(submob.points.flatten()))
+                needs_redraw = submob_id not in self.captured_mobject_ids or \
+                               submob.point_hash != point_hash
                 data.append({
-                    'points': submob_points.tolist(),
+                    'points': submob.points.tolist() if needs_redraw else [],
                     'style': get_mobject_style(submob),
                     'id': id(submob),
                     'needsRedraw': needs_redraw,
                     'needsTriangulation': needs_redraw,
                 })
+                submob.point_hash = point_hash
+                self.captured_mobject_ids.add(id(submob))
         for _ in range(num_frames):
             print(json.dumps({
                 'message': 'frame',

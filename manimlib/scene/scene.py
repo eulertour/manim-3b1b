@@ -433,9 +433,10 @@ class Scene(Container):
     def progress_through_animations(self, animations):
         # Paint all non-moving objects onto the screen, so they don't
         # have to be rendered every frame
-        moving_mobjects = self.get_moving_mobjects(*animations)
-        self.update_frame(excluded_mobjects=moving_mobjects)
-        static_image = self.get_frame()
+        if not manimlib.constants.PRINT_FRAMES_ONLY:
+            moving_mobjects = self.get_moving_mobjects(*animations)
+            self.update_frame(excluded_mobjects=moving_mobjects)
+            static_image = self.get_frame()
         last_t = 0
         for t in self.get_animation_time_progression(animations):
             dt = t - last_t
@@ -445,10 +446,11 @@ class Scene(Container):
                 alpha = t / animation.run_time
                 animation.interpolate(alpha)
             self.update_mobjects(dt)
-            self.update_frame(moving_mobjects, static_image)
-            self.add_frames(self.get_frame())
             if manimlib.constants.PRINT_FRAMES_ONLY:
                 self.camera.save_frame(self.mobjects)
+            else:
+                self.update_frame(moving_mobjects, static_image)
+                self.add_frames(self.get_frame())
 
     def finish_animations(self, animations):
         for animation in animations:
@@ -515,10 +517,11 @@ class Scene(Container):
                 dt = t - last_t
                 last_t = t
                 self.update_mobjects(dt)
-                self.update_frame()
-                self.add_frames(self.get_frame())
                 if manimlib.constants.PRINT_FRAMES_ONLY:
                     self.camera.save_frame(self.mobjects)
+                else:
+                    self.update_frame()
+                    self.add_frames(self.get_frame())
                 if stop_condition is not None and stop_condition():
                     time_progression.close()
                     break
@@ -526,16 +529,17 @@ class Scene(Container):
             # Do nothing
             return self
         else:
-            self.update_frame()
-            dt = 1 / self.camera.frame_rate
-            n_frames = int(duration / dt)
-            frame = self.get_frame()
-            self.add_frames(*[frame] * n_frames)
+            if not manimlib.constants.PRINT_FRAMES_ONLY:
+                self.update_frame()
+            n_frames = int(duration * self.camera.frame_rate)
             if manimlib.constants.PRINT_FRAMES_ONLY:
                 self.camera.save_frame(
                     self.mobjects,
-                    num_frames=self.camera.frame_rate,
+                    num_frames=n_frames,
                 )
+            else:
+                frame = self.get_frame()
+                self.add_frames(*[frame] * n_frames)
         return self
 
     def wait_until(self, stop_condition, max_time=60):
