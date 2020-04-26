@@ -277,7 +277,7 @@ class Camera(object):
         data = []
         for mob in mobjects:
             for submob in mob.family_members_with_points():
-                if submob.__class__.__name__ == 'ValueTracker':
+                if submob.__class__.__name__ in ['ValueTracker', 'VectorizedPoint']:
                     continue
                 submob_id = id(submob)
                 point_hash = hash(tuple(submob.points.flatten()))
