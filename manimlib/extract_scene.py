@@ -5,6 +5,7 @@ import platform
 import subprocess as sp
 import sys
 import traceback
+import json
 
 from manimlib.scene.scene import Scene
 from manimlib.utils.sounds import play_error_sound
@@ -136,8 +137,9 @@ def main(config):
     module = config["module"]
     all_scene_classes = get_scene_classes_from_module(module)
     if config["display_scenes"]:
-        for scene in all_scene_classes:
-            print(scene.__qualname__)
+        print(json.dumps(
+            list(map(lambda scene: scene.__qualname__, all_scene_classes))
+        ))
         sys.exit(0)
     scene_classes_to_render = get_scenes_to_render(all_scene_classes, config)
 

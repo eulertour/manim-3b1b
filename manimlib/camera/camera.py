@@ -277,6 +277,8 @@ class Camera(object):
         data = []
         for mob in mobjects:
             for submob in mob.family_members_with_points():
+                if submob.__class__.__name__ == 'ValueTracker':
+                    continue
                 submob_id = id(submob)
                 point_hash = hash(tuple(submob.points.flatten()))
                 needs_redraw = submob_id not in self.captured_mobject_ids or \
