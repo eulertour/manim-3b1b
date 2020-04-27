@@ -142,6 +142,10 @@ def parse_cli():
             action="store_true",
             help="interpret svgs in javascript",
         )
+        parser.add_argument(
+            "--change_directory",
+            help="change to the specified directory before running",
+        )
         return parser.parse_args()
     except argparse.ArgumentError as err:
         print(str(err))
@@ -202,6 +206,7 @@ def get_configuration(args):
         "display_scenes": args.display_scenes,
         "print_frames_only": args.print_frames_only,
         "use_javascript_svg_interpretation": args.use_javascript_svg_interpretation,
+        "change_directory": args.change_directory,
     }
 
     # Camera configuration
