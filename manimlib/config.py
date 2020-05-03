@@ -146,6 +146,11 @@ def parse_cli():
             "--change_directory",
             help="change to the specified directory before running",
         )
+        parser.add_argument(
+            "--frame_rate",
+            type=int,
+            help="set the frame rate",
+        )
         return parser.parse_args()
     except argparse.ArgumentError as err:
         print(str(err))
@@ -207,6 +212,7 @@ def get_configuration(args):
         "print_frames_only": args.print_frames_only,
         "use_javascript_svg_interpretation": args.use_javascript_svg_interpretation,
         "change_directory": args.change_directory,
+        "frame_rate": args.frame_rate,
     }
 
     # Camera configuration
@@ -239,6 +245,9 @@ def get_camera_configuration(args):
         camera_config.update(manimlib.constants.HIGH_QUALITY_CAMERA_CONFIG)
     else:
         camera_config.update(manimlib.constants.PRODUCTION_QUALITY_CAMERA_CONFIG)
+
+    if args.frame_rate:
+        camera_config["frame_rate"] = args.frame_rate
 
     # If the resolution was passed in via -r
     if args.resolution:
