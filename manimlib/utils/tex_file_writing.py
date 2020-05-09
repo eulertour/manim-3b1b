@@ -1,6 +1,5 @@
 import os
 import hashlib
-import json
 
 from manimlib.constants import TEX_TEXT_TO_REPLACE
 from manimlib.constants import TEX_USE_CTEX
@@ -27,15 +26,7 @@ def generate_tex_file(expression, template_tex_file_body):
         tex_hash(expression, template_tex_file_body)
     ) + ".tex"
     if not os.path.exists(result):
-        if consts.PRINT_FRAMES_ONLY:
-            print(json.dumps({
-                'message': 'debug',
-                'data': "Writing \"%s\" to %s" % ("".join(expression), result),
-            }))
-        else:
-            print("Writing \"%s\" to %s" % (
-                "".join(expression), result
-            ))
+        print("Writing \"%s\" to %s" % ( "".join(expression), result))
         new_body = template_tex_file_body.replace(
             TEX_TEXT_TO_REPLACE, expression
         )

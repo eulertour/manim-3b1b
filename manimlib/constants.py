@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import sys
-import json
 
 MEDIA_DIR = ""
 VIDEO_DIR = ""
@@ -39,11 +38,10 @@ def initialize_directories(config):
             )
 
     if not os.path.exists(MEDIA_DIR):
-        print(json.dumps({
-            'message': 'debug',
-            'data': f"Media will be written to {MEDIA_DIR + os.sep}. You can change "
+        print(
+            f"Media will be written to {MEDIA_DIR + os.sep}. You can change "
             "this behavior with the --media_dir flag.",
-        }))
+        )
     TEX_DIR = config["tex_dir"] or os.path.join(MEDIA_DIR, "Tex")
     TEXT_DIR = os.path.join(MEDIA_DIR, "texts")
     if not video_path_specified:

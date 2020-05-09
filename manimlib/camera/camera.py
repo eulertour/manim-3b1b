@@ -293,10 +293,7 @@ class Camera(object):
                 submob.point_hash = point_hash
                 self.captured_mobject_ids.add(id(submob))
         for _ in range(num_frames):
-            print(json.dumps({
-                'message': 'frame',
-                'data': data,
-            }))
+            print(json.dumps({ 'message': 'frame', 'data': data }))
 
     # Methods associated with svg rendering
 
