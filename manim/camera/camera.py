@@ -10,7 +10,8 @@ import time
 import copy
 
 from PIL import Image
-from scipy.spatial.distance import pdist
+
+# from scipy.spatial.distance import pdist
 import cairo
 import numpy as np
 
@@ -910,8 +911,9 @@ class Camera:
         sub_image = Image.fromarray(image_mobject.get_pixel_array(), mode="RGBA")
 
         # Reshape
-        pixel_width = max(int(pdist([ul_coords, ur_coords])), 1)
-        pixel_height = max(int(pdist([ul_coords, dl_coords])), 1)
+        raise NotImplementedError("scipy.spatial.distance.pdist")
+        # pixel_width = max(int(pdist([ul_coords, ur_coords])), 1)
+        # pixel_height = max(int(pdist([ul_coords, dl_coords])), 1)
         sub_image = sub_image.resize(
             (pixel_width, pixel_height), resample=Image.BICUBIC
         )

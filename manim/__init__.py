@@ -1,8 +1,23 @@
 #!/usr/bin/env python
 
+import sys
+
 # Importing the config module should be the first thing we do, since other
 # modules depend on the global config dict for initialization.
-from ._config import *
+if sys.platform != "emscripten":
+    from ._config import *
+else:
+    import logging
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("manim")
+
+    # from ._config.utils import ManimConfig, ManimFrame, make_config_parser
+
+    # parser = make_config_parser()
+    # config = ManimConfig().digest_parser(parser)
+    # frame = ManimFrame(config)
+    config = {}
 
 from .constants import *
 
@@ -85,17 +100,18 @@ from .utils.tex import *
 from .utils.tex_templates import *
 from .utils import unit
 
-try:
-    from IPython import get_ipython
-    from .utils.ipython_magic import ManimMagic
-except ImportError:
-    pass
-else:
-    ipy = get_ipython()
-    if ipy is not None:
-        ipy.register_magics(ManimMagic)
+if sys.platform != "emscripten":
+    try:
+        from IPython import get_ipython
+        from .utils.ipython_magic import ManimMagic
+    except ImportError:
+        pass
+    else:
+        ipy = get_ipython()
+        if ipy is not None:
+            ipy.register_magics(ManimMagic)
 
-from .plugins import *
+    from .plugins import *
 
 try:
     import importlib.metadata as importlib_metadata
