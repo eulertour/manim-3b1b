@@ -1,10 +1,12 @@
 """Set the global config and logger."""
 
+import sys
 import logging
 from contextlib import _GeneratorContextManager, contextmanager
 from typing import Union
 
-from .logger_utils import make_logger
+if sys.platform != "emscripten":
+    from .logger_utils import make_logger
 from .utils import ManimConfig, ManimFrame, make_config_parser
 
 __all__ = [
@@ -20,10 +22,11 @@ parser = make_config_parser()
 # The logger can be accessed from anywhere as manim.logger, or as
 # logging.getLogger("manim").  The console must be accessed as manim.console.
 # Throughout the codebase, use manim.console.print() instead of print().
-logger, console = make_logger(parser["logger"], parser["CLI"]["verbosity"])
-# TODO: temporary to have a clean terminal output when working with PIL or matplotlib
-logging.getLogger("PIL").setLevel(logging.INFO)
-logging.getLogger("matplotlib").setLevel(logging.INFO)
+if sys.platform != "emscripten":
+    logger, console = make_logger(parser["logger"], parser["CLI"]["verbosity"])
+    # TODO: temporary to have a clean terminal output when working with PIL or matplotlib
+    logging.getLogger("PIL").setLevel(logging.INFO)
+    logging.getLogger("matplotlib").setLevel(logging.INFO)
 
 config = ManimConfig().digest_parser(parser)
 frame = ManimFrame(config)

@@ -8,11 +8,10 @@ import itertools as it
 import operator as op
 import time
 import copy
+import sys
 
 from PIL import Image
 
-# from scipy.spatial.distance import pdist
-import cairo
 import numpy as np
 
 from .. import logger, config
@@ -537,6 +536,8 @@ class Camera:
         cairo.Context
             The cairo context of the pixel array.
         """
+        import cairo
+
         cached_ctx = self.get_cached_cairo_context(pixel_array)
         if cached_ctx:
             return cached_ctx
@@ -673,6 +674,8 @@ class Camera:
         Camera
             The camera object
         """
+        import cairo
+
         if len(rgbas) == 1:
             # Use reversed rgb because cairo surface is
             # encodes it in reverse order
@@ -911,9 +914,12 @@ class Camera:
         sub_image = Image.fromarray(image_mobject.get_pixel_array(), mode="RGBA")
 
         # Reshape
-        raise NotImplementedError("scipy.spatial.distance.pdist")
-        # pixel_width = max(int(pdist([ul_coords, ur_coords])), 1)
-        # pixel_height = max(int(pdist([ul_coords, dl_coords])), 1)
+        if sys.platform == "emscripten":
+            raise NotImplementedError("scipy.spatial.distance.pdist")
+        from scipy.spatial.distance import pdist
+
+        pixel_width = max(int(pdist([ul_coords, ur_coords])), 1)
+        pixel_height = max(int(pdist([ul_coords, dl_coords])), 1)
         sub_image = sub_image.resize(
             (pixel_width, pixel_height), resample=Image.BICUBIC
         )

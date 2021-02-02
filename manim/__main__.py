@@ -3,12 +3,7 @@ import sys
 import traceback
 
 from manim import logger, config
-from manim.utils.module_ops import (
-    get_module,
-    get_scene_classes_from_module,
-    get_scenes_to_render,
-    scene_classes_from_file,
-)
+from manim.utils.module_ops import get_scene_classes
 from manim.utils.file_ops import open_file as open_media_file
 from manim._config.main_utils import parse_args
 
@@ -72,11 +67,16 @@ def main():
     else:
         config.digest_args(args)
         input_file = config.get_dir("input_file")
+        scene_names = config["scene_names"]
         if config["use_webgl_renderer"]:
             try:
                 from manim.grpc.impl import frame_server_impl
+                from manim.renderer.webgl_renderer import WebGLRenderer
 
-                server = frame_server_impl.get(input_file)
+                assert len(scene_names) == 1
+                server = frame_server_impl.get(
+                    input_file, scene_names[0], WebGLRenderer()
+                )
                 server.start()
                 server.wait_for_termination()
             except ModuleNotFoundError as e:
@@ -88,7 +88,7 @@ def main():
                 print(e)
                 print("\n\n")
         else:
-            for SceneClass in scene_classes_from_file(input_file):
+            for SceneClass in get_scene_classes(input_file, scene_names):
                 try:
                     scene = SceneClass()
                     scene.render()

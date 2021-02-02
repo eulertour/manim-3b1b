@@ -12,15 +12,9 @@ import threading
 import time
 import traceback
 import types
-from ...utils.module_ops import (
-    get_module,
-    get_scene_classes_from_module,
-    get_scenes_to_render,
-    scene_classes_from_file,
-)
+from ...utils.module_ops import get_scene_classes
 from ... import logger
 from ...constants import WEBGL_RENDERER_INFO
-from ...renderer.webgl_renderer import WebGLRenderer
 from ...utils.family import extract_mobject_family_members
 import logging
 import copy
@@ -59,9 +53,11 @@ class ScriptUpdateHandler(FileSystemEventHandler):
 
 
 class FrameServer(frameserver_pb2_grpc.FrameServerServicer):
-    def __init__(self, server, input_file_path):
+    def __init__(self, server, input_file_path, scene_name, renderer):
         self.server = server
+        self.renderer = renderer
         self.input_file_path = input_file_path
+        self.scene_name = scene_name
         self.exception = None
         self.load_scene_module()
 
@@ -84,55 +80,28 @@ class FrameServer(frameserver_pb2_grpc.FrameServerServicer):
 
     def GetFrameAtTime(self, request, context):
         try:
-            requested_scene_index = request.animation_index
+            (
+                requested_scene,
+                requested_scene_index,
+                scene_finished,
+                animation_offset,
+                update_previous_scene,
+                ids_to_remove,
+                mobjects_to_add,
+                animations,
+                updaters,
+                update_data,
+            ) = self.renderer.get_updated_scene_data(
+                {
+                    "first_request": request.first_request,
+                    "animation_index": request.animation_index,
+                    "end_index": request.end_index,
+                    "animation_offset": request.animation_offset,
+                    "end_index": request.end_index,
+                }
+            )
 
-            # Find the requested scene.
-            scene_finished = False
-            if requested_scene_index == request.end_index:
-                scene_finished = True
-
-            if (
-                request.animation_offset
-                <= self.keyframes[requested_scene_index].duration
-            ):
-                animation_offset = request.animation_offset
-            else:
-                if requested_scene_index + 1 < request.end_index:
-                    requested_scene_index += 1
-                    animation_offset = 0
-                else:
-                    scene_finished = True
-                    animation_offset = self.keyframes[requested_scene_index].duration
-
-            if requested_scene_index == self.previous_scene_index:
-                requested_scene = self.previous_scene
-                update_previous_scene = False
-            else:
-                requested_scene = copy.deepcopy(self.keyframes[requested_scene_index])
-                update_previous_scene = True
-
-            requested_scene.update_to_time(animation_offset)
-
-            ids_to_remove = []
-            mobjects_to_add = []
-            animations = []
-            updaters = []
-            update_data = []
-            # TODO: Only remove/add changed mobjects rather than all of them.
-            if self.previous_scene is not None and (
-                request.first_request or self.previous_scene != requested_scene
-            ):
-                previous_mobjects = extract_mobject_family_members(
-                    self.previous_scene.mobjects, only_those_with_points=True
-                )
-                # Remove everything from the previous scene.
-                ids_to_remove = [
-                    mob.original_id
-                    for mob in previous_mobjects
-                    if not isinstance(mob, ValueTracker)
-                ]
-
-            if request.first_request or self.previous_scene != requested_scene:
+            if request.first_request or self.renderer.previous_scene != requested_scene:
                 # Add everything from the requested scene.
                 mobjects_to_add = [
                     serialize_mobject(mobject)
@@ -248,8 +217,8 @@ class FrameServer(frameserver_pb2_grpc.FrameServerServicer):
                 all_animations_tweened=all_animations_tweened,
             )
             if update_previous_scene:
-                self.previous_scene = requested_scene
-                self.previous_scene_index = requested_scene_index
+                self.renderer.previous_scene = requested_scene
+                self.renderer.previous_scene_index = requested_scene_index
             return resp
         except Exception as e:
             traceback.print_exc()
@@ -264,7 +233,7 @@ class FrameServer(frameserver_pb2_grpc.FrameServerServicer):
                             name=animations_to_name(scene.animations),
                             duration=scene.duration,
                         )
-                        for scene in self.keyframes
+                        for scene in self.renderer.keyframes
                     ],
                 ),
             )
@@ -279,20 +248,14 @@ class FrameServer(frameserver_pb2_grpc.FrameServerServicer):
     def load_scene_module(self):
         self.exception = None
         try:
-            self.scene_class = scene_classes_from_file(
-                self.input_file_path, require_single_scene=True
+            self.scene_class = get_scene_classes(
+                self.input_file_path, [self.scene_name], require_single_scene=True
             )
-            self.generate_keyframe_data()
+            self.renderer.__init__()
+            self.scene = self.scene_class(self.renderer)
+            self.scene.render()
         except Exception as e:
             self.exception = e
-
-    def generate_keyframe_data(self):
-        self.keyframes = []
-        self.previous_scene_index = None
-        self.previous_scene = None
-        self.renderer = WebGLRenderer(self)
-        self.scene = self.scene_class(self.renderer)
-        self.scene.render()
 
     def update_renderer_scene_data(self):
         # If a javascript renderer is running, notify it of the scene being served. If
@@ -308,7 +271,7 @@ class FrameServer(frameserver_pb2_grpc.FrameServerServicer):
                                 name=animations_to_name(scene.animations),
                                 duration=scene.duration,
                             )
-                            for scene in self.keyframes
+                            for scene in self.renderer.keyframes
                         ],
                     ),
                 )
@@ -413,10 +376,10 @@ def serialize_mobject(mobject):
     return mob_proto
 
 
-def get(input_file_path):
+def get(input_file_path, scene_name, renderer):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     frameserver_pb2_grpc.add_FrameServerServicer_to_server(
-        FrameServer(server, input_file_path), server
+        FrameServer(server, input_file_path, scene_name, renderer), server
     )
     server.add_insecure_port("localhost:50051")
     return server

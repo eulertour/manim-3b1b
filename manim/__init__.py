@@ -12,12 +12,12 @@ else:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("manim")
 
-    # from ._config.utils import ManimConfig, ManimFrame, make_config_parser
+    from ._config.utils import ManimConfig, ManimFrame
 
-    # parser = make_config_parser()
-    # config = ManimConfig().digest_parser(parser)
-    # frame = ManimFrame(config)
-    config = {}
+    config = ManimConfig()
+    config["frame_width"] = 8
+
+    frame = ManimFrame(config)
 
 from .constants import *
 
@@ -35,7 +35,8 @@ from .animation.rotation import *
 from .animation.transform import *
 from .animation.update import *
 
-from .renderer.cairo_renderer import *
+if sys.platform != "emscripten":
+    from .renderer.cairo_renderer import *
 
 from .camera.camera import *
 from .camera.mapping_camera import *
@@ -59,8 +60,10 @@ from .mobject.shape_matchers import *
 from .mobject.svg.brace import *
 from .mobject.svg.svg_mobject import *
 from .mobject.svg.tex_mobject import *
-from .mobject.svg.text_mobject import *
-from .mobject.svg.code_mobject import *
+
+if sys.platform != "emscripten":
+    from .mobject.svg.text_mobject import *
+    from .mobject.svg.code_mobject import *
 from .mobject.three_d_utils import *
 from .mobject.three_dimensions import *
 from .mobject.types.image_mobject import *
@@ -79,7 +82,9 @@ from .scene.sample_space_scene import *
 from .scene.three_d_scene import *
 from .scene.vector_space_scene import *
 from .scene.zoomed_scene import *
-from .scene.scene_file_writer import *
+
+if sys.platform != "emscripten":
+    from .scene.scene_file_writer import *
 
 from .utils.bezier import *
 from .utils.color import *
@@ -99,6 +104,7 @@ from .utils.strings import *
 from .utils.tex import *
 from .utils.tex_templates import *
 from .utils import unit
+from .utils.module_ops import *
 
 if sys.platform != "emscripten":
     try:

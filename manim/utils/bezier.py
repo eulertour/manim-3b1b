@@ -15,10 +15,9 @@ __all__ = [
 
 
 import typing
+import sys
 
 import numpy as np
-
-# from scipy import linalg
 
 from ..utils.simple_functions import choose
 
@@ -136,8 +135,11 @@ def get_smooth_handle_points(
     b[-1] = points[-1]
 
     def solve_func(b: np.ndarray) -> np.ndarray:
-        raise NotImplementedError("linalg.solve_banded")
-        # return linalg.solve_banded((l, u), diag, b)
+        if sys.platform == "emscripten":
+            raise NotImplementedError("linalg.solve_banded")
+        from scipy import linalg
+
+        return linalg.solve_banded((l, u), diag, b)
 
     use_closed_solve_function = is_closed(points)
     if use_closed_solve_function:
@@ -152,8 +154,11 @@ def get_smooth_handle_points(
         b[-1] = np.zeros(dim)
 
         def closed_curve_solve_func(b: np.ndarray) -> np.ndarray:
-            raise NotImplementedError("linalg.solve")
-            # return linalg.solve(matrix, b)
+            if sys.platform == "emscripten":
+                raise NotImplementedError("linalg.solve")
+            from scipy import linalg
+
+            return linalg.solve(matrix, b)
 
     handle_pairs = np.zeros((2 * num_handles, dim))
     for i in range(dim):

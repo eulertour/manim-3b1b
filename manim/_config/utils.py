@@ -24,7 +24,8 @@ import numpy as np
 
 from .. import constants
 from ..utils.tex import TexTemplate, TexTemplateFromFile
-from .logger_utils import set_file_logger
+if sys.platform != "emscripten":
+    from .logger_utils import set_file_logger
 
 
 def config_file_paths() -> typing.List[Path]:

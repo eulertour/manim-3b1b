@@ -4,6 +4,7 @@
 __all__ = ["Scene"]
 
 
+import sys
 import inspect
 import random
 import warnings
@@ -24,7 +25,9 @@ from ..container import Container
 from ..mobject.mobject import Mobject, _AnimationBuilder
 from ..utils.iterables import list_update, list_difference_update
 from ..utils.family import extract_mobject_family_members
-from ..renderer.cairo_renderer import CairoRenderer
+
+if sys.platform != "emscripten":
+    from ..renderer.cairo_renderer import CairoRenderer
 from ..utils.exceptions import EndSceneEarlyException
 
 
